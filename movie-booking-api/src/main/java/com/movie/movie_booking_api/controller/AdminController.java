@@ -1,6 +1,5 @@
 package com.movie.movie_booking_api.controller;
 
-import com.movie.movie_booking_api.repository.PaymentRepository;
 import com.movie.movie_booking_api.repository.BookingRepository;
 import com.movie.movie_booking_api.repository.ShowTimeRepository;
 import com.movie.movie_booking_api.entity.Movie;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 

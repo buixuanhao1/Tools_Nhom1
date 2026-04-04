@@ -16,7 +16,7 @@ import com.movie.movie_booking_api.repository.UserRepository;
 import com.movie.movie_booking_api.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
@@ -63,7 +63,7 @@ class MovieBookingApiApplicationTests {
 	@jakarta.annotation.Resource
 	private PasswordEncoder passwordEncoder;
 
-	@SpyBean
+	@MockitoBean
 	private SeatRealtimeService seatRealtimeService;
 
 	@jakarta.annotation.Resource

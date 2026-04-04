@@ -122,11 +122,7 @@ public class AdminUserController {
     }
 
     private int mergedCountBookings(BookingRepository repo, Long canonicalId, java.util.List<Long> oldIds) {
-        int total = 0;
-        for (Long id : oldIds) {
-            java.util.List<com.movie.movie_booking_api.entity.Booking> bs = repo.findByUserId(canonicalId);
-            total += (bs == null ? 0 : bs.size());
-        }
-        return total;
+        java.util.List<com.movie.movie_booking_api.entity.Booking> bs = repo.findByUserId(canonicalId);
+        return (bs == null ? 0 : bs.size());
     }
 }

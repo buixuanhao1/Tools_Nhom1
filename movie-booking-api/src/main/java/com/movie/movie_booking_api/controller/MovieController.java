@@ -342,68 +342,6 @@ public class MovieController {
         }
     }
 
-    private int importFromTmdbInternal(String apiKey, String type, String lang, int page) throws Exception {
-        String endpoint = "https://api.themoviedb.org/3/movie/" + type
-                + "?api_key=" + java.net.URLEncoder.encode(apiKey, java.nio.charset.StandardCharsets.UTF_8)
-                + "&language=" + java.net.URLEncoder.encode(lang, java.nio.charset.StandardCharsets.UTF_8)
-                + "&page=" + page;
-
-        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
-        java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
-                .uri(java.net.URI.create(endpoint))
-                .GET()
-                .build();
-        java.net.http.HttpResponse<String> resp = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
-        if (resp.statusCode() != 200) {
-            throw new IllegalStateException("TMDB error: " + resp.body());
-        }
-
-        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
-        com.fasterxml.jackson.databind.JsonNode root = om.readTree(resp.body());
-        com.fasterxml.jackson.databind.JsonNode results = root.get("results");
-        if (results == null || !results.isArray()) {
-            return 0;
-        }
-
-        java.util.Set<Long> existingTmdbIds = movieRepository.findAll().stream()
-                .map(m -> m.getTmdbId() == null ? 0L : m.getTmdbId())
-                .filter(id -> id != 0L)
-                .collect(java.util.stream.Collectors.toSet());
-
-        java.util.List<Movie> toSave = new java.util.ArrayList<>();
-        for (com.fasterxml.jackson.databind.JsonNode n : results) {
-            Long tmdbId = n.path("id").asLong(0L);
-            if (tmdbId == null || tmdbId == 0L) continue;
-            if (existingTmdbIds.contains(tmdbId) || movieRepository.findByTmdbId(tmdbId).isPresent()) continue;
-            String title = n.path("title").asText(null);
-            String overview = n.path("overview").asText(null);
-            String originalLanguage = n.path("original_language").asText(null);
-            String posterPath = n.path("poster_path").asText(null);
-            MovieStatus st;
-            String t = type.toLowerCase();
-            if ("now_playing".equals(t)) st = MovieStatus.NOW_SHOWING;
-            else if ("upcoming".equals(t)) st = MovieStatus.UPCOMING;
-            else st = MovieStatus.NOW_SHOWING;
-
-            Movie m = Movie.builder()
-                    .title(title)
-                    .description(overview)
-                    .language(originalLanguage)
-                    .tmdbId(tmdbId)
-                    .posterUrl(posterPath == null ? null : ("https://image.tmdb.org/t/p/w500" + posterPath))
-                    .status(st)
-                    .movieIdLegacy("0")
-                    .createdAt(java.time.LocalDateTime.now())
-                    .updatedAt(java.time.LocalDateTime.now())
-                    .build();
-            toSave.add(m);
-            existingTmdbIds.add(tmdbId);
-        }
-
-        if (!toSave.isEmpty()) movieRepository.saveAll(toSave);
-        return toSave.size();
-    }
-
     private int importFromTmdbInternalAuth(String type, String lang, int page) throws Exception {
         String cleanedType = type == null ? "" : type.trim();
         String cleanedLang = (lang == null || lang.isBlank()) ? "vi-VN" : lang.trim();

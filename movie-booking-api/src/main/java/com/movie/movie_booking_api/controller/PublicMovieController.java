@@ -475,7 +475,8 @@ public class PublicMovieController {
     private java.util.Map<String, Object> fetchTmdbListObj(String type, int page, String language, String region) {
         java.util.Map<String, Object> out = new java.util.HashMap<>();
         out.put("page", page);
-        out.put("results", new java.util.ArrayList<java.util.Map<String, Object>>());
+        java.util.List<java.util.Map<String, Object>> arr = new java.util.ArrayList<>();
+        out.put("results", arr);
         out.put("total_pages", 0);
         out.put("total_results", 0);
         String lang = (language == null || language.isBlank()) ? "vi-VN" : language.trim();
@@ -487,6 +488,7 @@ public class PublicMovieController {
         java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
                 .connectTimeout(java.time.Duration.ofSeconds(2))
                 .build();
+
         try {
             java.net.http.HttpRequest req;
             if (tmdbApiKey != null && !tmdbApiKey.isBlank()) {
@@ -504,7 +506,6 @@ public class PublicMovieController {
                 out.put("total_pages", root.path("total_pages").asInt(0));
                 out.put("total_results", root.path("total_results").asInt(0));
                 com.fasterxml.jackson.databind.JsonNode results = root.get("results");
-                java.util.List<java.util.Map<String, Object>> arr = (java.util.List<java.util.Map<String, Object>>) out.get("results");
                 if (results != null && results.isArray()) {
                     for (com.fasterxml.jackson.databind.JsonNode n : results) {
                         java.util.Map<String, Object> it = new java.util.HashMap<>();

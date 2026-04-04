@@ -1,6 +1,5 @@
 package com.movie.movie_booking_api.config;
 
-import com.movie.movie_booking_api.security.CustomUserDetailsService;
 import com.movie.movie_booking_api.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean

@@ -9,62 +9,122 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-body: #0b1220;
-      --bg-panel: #111827;
-      --bg-card: #1f2937;
-      --border: #374151;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --text-main: #f9fafb;
+      --bg-body: #0a0f1d;
+      --bg-panel: rgba(17, 24, 39, 0.7);
+      --bg-card: rgba(31, 41, 55, 0.5);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-light: rgba(255, 255, 255, 0.15);
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-glow: rgba(79, 70, 229, 0.4);
+      --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --radius: 12px;
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius: 16px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      --glass-blur: blur(12px);
     }
     
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      margin-left: 240px; /* Fix sidebar overlap */
       background: var(--bg-body);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
       color: var(--text-main);
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       line-height: 1.5;
+      margin-left: 240px;
+      overflow-x: hidden;
+      min-height: 100vh;
     }
 
     @media (max-width: 1024px) {
-      body { margin-left: 0; } /* Reset on mobile if sidebar is hidden/changed */
+      body { margin-left: 0; }
     }
 
     /* Layout */
     .layout-container {
       max-width: 1600px;
       margin: 0 auto;
-      padding: 24px;
-      box-sizing: border-box;
+      padding: 32px;
     }
 
     .page-header {
-      margin-bottom: 24px;
+      margin-bottom: 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .page-title h1 {
-      margin: 0;
-      font-size: 24px;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .page-title p {
+      margin-top: 8px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg-panel);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-light);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-info .stat-value {
+      font-size: 22px;
       font-weight: 700;
       color: #fff;
     }
 
-    .page-title p {
-      margin: 4px 0 0;
+    .stat-info .stat-label {
+      font-size: 13px;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     /* Grid System */
@@ -75,26 +135,30 @@
       align-items: start;
     }
 
+    @media (max-width: 1280px) {
+      .main-grid { grid-template-columns: 280px 1fr; }
+    }
+
     @media (max-width: 1024px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
+      .main-grid { grid-template-columns: 1fr; }
     }
 
     /* Panels */
     .panel {
       background: var(--bg-panel);
+      backdrop-filter: var(--glass-blur);
       border-radius: var(--radius);
       border: 1px solid var(--border);
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 120px);
-      min-height: 600px;
+      height: calc(100vh - 350px);
+      min-height: 500px;
+      box-shadow: var(--shadow);
     }
 
     .panel-header {
-      padding: 16px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.02);
       display: flex;
@@ -115,31 +179,31 @@
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      color: #fff;
     }
 
     .panel-body {
       flex: 1;
       overflow-y: auto;
-      padding: 0; /* Remove padding for list view */
     }
 
     /* Forms & Inputs */
     input, select, textarea {
-      background: var(--bg-body);
+      background: rgba(0, 0, 0, 0.2);
       border: 1px solid var(--border);
       color: var(--text-main);
-      border-radius: 8px;
-      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
       font-size: 14px;
       width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
+      transition: all 0.2s ease;
     }
 
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
     }
     
     /* Buttons */
@@ -147,78 +211,95 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
-      gap: 6px;
+      gap: 8px;
       font-family: inherit;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
+    .btn:active { transform: scale(0.96); }
 
     .btn-primary {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
       color: white;
     }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover { 
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
 
-    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .btn-danger { 
+      background: rgba(239, 68, 68, 0.1); 
+      color: var(--danger); 
+      border: 1px solid rgba(239, 68, 68, 0.2); 
+    }
     .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
 
-    .btn-sm { padding: 6px 12px; font-size: 12px; }
-    .st-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-    .st-actions .btn-sm { min-width: 56px; }
-
-    .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    
+    .st-actions { 
+      display: flex; 
+      gap: 8px; 
+      justify-content: flex-end;
     }
 
-    .btn-outline-primary {
-      background: rgba(59, 130, 246, 0.12);
-      color: var(--primary);
-      border: 1px solid rgba(59, 130, 246, 0.25);
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-main);
     }
-    .btn-outline-primary:hover { background: rgba(59, 130, 246, 0.18); }
+    .btn-outline:hover { background: rgba(255, 255, 255, 0.05); }
 
     .btn-icon {
-      padding: 6px 10px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 50%;
       background: transparent;
       color: var(--text-muted);
-      border: 1px solid transparent;
     }
-    .btn-icon:hover { background: rgba(255, 255, 255, 0.06); color: var(--text-main); }
+    .btn-icon:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
 
-    /* Movie List (Left Panel) - Redesigned as List Items */
+    /* Movie List Items */
     .movie-list-item {
       display: flex;
-      gap: 12px;
-      padding: 12px 16px;
+      gap: 16px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
     }
 
     .movie-list-item:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    
+    .movie-list-item.selected {
+      background: rgba(79, 70, 229, 0.1);
+      border-left: 3px solid var(--primary);
     }
 
     .movie-thumb {
-      width: 48px;
-      height: 72px;
-      border-radius: 4px;
+      width: 44px;
+      height: 66px;
+      border-radius: 6px;
       object-fit: cover;
       background: #000;
       flex-shrink: 0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .movie-info {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-width: 0; /* Text truncation fix */
     }
 
     .movie-title {
@@ -236,26 +317,7 @@
       color: var(--text-muted);
     }
     
-    .movie-add-icon {
-      display: flex;
-      align-items: center;
-      color: var(--primary);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    
-    .movie-list-item:hover .movie-add-icon {
-      opacity: 1;
-    }
-
-    /* Showtime Table (Right Panel) */
-    .filters {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    
+    /* Table Styling */
     .table-wrapper {
       width: 100%;
       overflow-x: auto;
@@ -265,14 +327,15 @@
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      font-size: 13px;
     }
 
     th {
-      background: rgba(255,255,255,0.05);
-      font-weight: 600;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px;
       text-align: left;
-      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-muted);
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
       position: sticky;
@@ -281,245 +344,118 @@
     }
 
     td {
-      padding: 12px 16px;
+      padding: 16px;
       border-bottom: 1px solid var(--border);
       vertical-align: middle;
+      font-size: 14px;
     }
 
     tr:hover td {
-      background: rgba(255,255,255,0.02);
+      background: rgba(255, 255, 255, 0.015);
     }
 
-    #st_selectAll,
-    #showtimesBody input[type="checkbox"][data-stid] {
-      width: 16px;
-      height: 16px;
-      padding: 0;
-      margin: 0;
+    /* Custom Checkbox */
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
-      border: 1px solid var(--border);
+      border: 2px solid var(--border-light);
       border-radius: 4px;
-      background: rgba(255,255,255,0.03);
-      display: inline-grid;
-      place-content: center;
-      cursor: pointer;
+      background: transparent;
+      position: relative;
+      transition: all 0.2s;
     }
-    #st_selectAll::before,
-    #showtimesBody input[type="checkbox"][data-stid]::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      transform: scale(0);
-      transition: transform 120ms ease-in-out;
-      box-shadow: inset 1em 1em #fff;
-      transform-origin: bottom left;
-      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    }
-    #st_selectAll:checked::before,
-    #showtimesBody input[type="checkbox"][data-stid]:checked::before {
-      transform: scale(1);
-    }
-
-    #st_selectAll:indeterminate::before {
-      transform: scale(1);
-      clip-path: polygon(0 42%, 100% 42%, 100% 58%, 0 58%);
-    }
-
-    #st_selectAll:focus-visible,
-    #showtimesBody input[type="checkbox"][data-stid]:focus-visible {
-      outline: none;
+    input[type="checkbox"]:checked {
+      background: var(--primary);
       border-color: var(--primary);
     }
+    input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 5px; top: 1px;
+      width: 5px; height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
 
+    /* Status Badges */
     .status-badge {
       display: inline-flex;
       align-items: center;
-      padding: 4px 8px;
-      border-radius: 99px;
+      padding: 5px 12px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 600;
-      line-height: 1;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .status-active { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
-    .status-upcoming { background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.2); }
-    .status-finished { background: rgba(156, 163, 175, 0.1); color: var(--text-muted); border: 1px solid rgba(156, 163, 175, 0.2); }
-    .status-cancelled { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .status-active { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .status-upcoming { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .status-finished { background: rgba(156, 163, 175, 0.15); color: #9ca3af; }
+    .status-cancelled { background: rgba(239, 68, 68, 0.15); color: #f87171; }
 
-    /* Modal */
+    /* Modal Styling */
     .overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
       z-index: 10000;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 18px;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s;
+      transition: opacity 0.3s ease;
     }
-    
-    .overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .overlay.active { opacity: 1; pointer-events: auto; }
 
     .modal {
-      background: var(--bg-panel);
-      width: 100%;
-      max-width: 500px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      max-height: calc(100vh - 40px);
-      display: flex;
-      flex-direction: column;
-      transform: translateY(20px);
-      transition: transform 0.2s;
+      background: #111827;
+      background-image: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent);
+      width: 95%;
+      max-width: 540px;
+      border-radius: 24px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
-    .overlay.active .modal {
-      transform: translateY(0);
-    }
+    .overlay.active .modal { transform: translateY(0) scale(1); }
 
     .modal-header {
-      padding: 20px;
+      padding: 24px 30px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .modal-header h3 { margin: 0; font-size: 18px; }
+    .modal-header h3 { font-size: 20px; color: #fff; }
 
-    .modal-body {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-height: 0;
-      overflow-y: auto;
-    }
-
-    .modal-footer {
-      padding: 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
+    .modal-body { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+    .modal-footer { padding: 24px 30px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
 
     .form-group label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-size: 13px;
-      font-weight: 500;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
-    .form-grid {
-      display: grid;
-      gap: 16px;
-    }
-
+    .form-grid { display: grid; gap: 20px; }
     .form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-    .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-    .form-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-    .form-grid.cols-2wide { grid-template-columns: 1.2fr 1fr; }
-
-    @media (max-width: 960px) {
-      .form-grid.cols-4 { grid-template-columns: 1fr 1fr; }
-      .checkbox-list { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 680px) {
-      .form-grid.cols-2,
-      .form-grid.cols-3,
-      .form-grid.cols-4,
-      .form-grid.cols-2wide { grid-template-columns: 1fr; }
-    }
-
-    .checkbox-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 10px 14px;
-      padding: 10px;
-      background: var(--bg-body);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      max-height: 160px;
-      overflow: auto;
-      align-items: start;
-    }
-
-    .checkbox-list.compact {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      max-height: 120px;
-    }
-
-    @media (max-width: 960px) {
-      .checkbox-list.compact { grid-template-columns: 1fr; }
-    }
-
-    .checkbox-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--text-main);
-      user-select: none;
-      line-height: 1.35;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      padding: 0;
-      margin: 0;
-      flex: 0 0 auto;
-      margin-top: 2px;
-      appearance: none;
-      -webkit-appearance: none;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: rgba(255,255,255,0.03);
-      display: inline-grid;
-      place-content: center;
-      cursor: pointer;
-    }
-
-    .checkbox-item input[type="checkbox"]::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      transform: scale(0);
-      transition: transform 120ms ease-in-out;
-      background: #fff;
-      clip-path: polygon(14% 44%, 0 65%, 38% 100%, 100% 22%, 80% 0, 36% 62%);
-    }
-
-    .checkbox-item input[type="checkbox"]:checked {
-      border-color: rgba(59,130,246,0.6);
-      background: rgba(59,130,246,0.9);
-    }
-
-    .checkbox-item input[type="checkbox"]:checked::before {
-      transform: scale(1);
-    }
-
-    .checkbox-item span {
-      overflow-wrap: anywhere;
-    }
 
     /* Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
   </style>
 </head>
 <body>
@@ -528,9 +464,41 @@
   <header class="page-header">
     <div class="page-title">
       <h1>Quản lý suất chiếu</h1>
-      <p>Tạo và quản lý lịch chiếu phim tại các cụm rạp</p>
+      <p>Thiết lập và theo dõi lịch chiếu phim tại các cụm rạp</p>
     </div>
   </header>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="color:var(--primary); background:rgba(79,70,229,0.1)">🎟️</div>
+      <div class="stat-info">
+        <div class="stat-value" id="stat_total">--</div>
+        <div class="stat-label">Tổng suất chiếu</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="color:var(--success); background:rgba(16,185,129,0.1)">⚡</div>
+      <div class="stat-info">
+        <div class="stat-value" id="stat_active">--</div>
+        <div class="stat-label">Số suất đang bán</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="color:var(--warning); background:rgba(245,158,11,0.1)">🕒</div>
+      <div class="stat-info">
+        <div class="stat-value" id="stat_upcoming">--</div>
+        <div class="stat-label">Suất chiếu sắp tới</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="color:var(--danger); background:rgba(239,68,68,0.1)">🎬</div>
+      <div class="stat-info">
+        <div class="stat-value" id="stat_movies">--</div>
+        <div class="stat-label">Phim đang chiếu</div>
+      </div>
+    </div>
+  </div>
 
   <div class="main-grid">
     <!-- Left Panel: Movie Selection -->
@@ -559,7 +527,6 @@
           <input id="l_date" type="date" style="width: 140px;" />
           <input id="l_q" type="text" placeholder="Tìm suất chiếu..." style="width: 160px;" />
           <button id="bulkDeleteBtn" class="btn btn-danger btn-sm" disabled>Xóa đã chọn (0)</button>
-          <button id="openAutoBtn" class="btn btn-outline-primary btn-sm">Tạo tự động</button>
           <button id="loadShowtimesBtn" class="btn btn-primary btn-sm">Làm mới</button>
         </div>
       </div>
@@ -701,139 +668,7 @@
   </div>
 </div>
 
-<!-- Modal: Auto Generate Showtimes -->
-<div id="autoOverlay" class="overlay">
-  <div class="modal" style="max-width: 980px;">
-    <div class="modal-header">
-      <h3>Tạo suất chiếu tự động</h3>
-      <button class="btn btn-icon" onclick="closeAutoModal()" style="font-size:20px;">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid cols-2">
-        <div class="form-group">
-          <label>Rạp</label>
-          <select id="auto_cinema"><option value="">Chọn rạp</option></select>
-        </div>
-        <div class="form-group">
-          <label>Ưu tiên doanh thu</label>
-          <select id="auto_revenueRange">
-            <option value="month" selected>Tháng này</option>
-            <option value="today">Hôm nay</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="form-grid cols-2wide">
-        <div class="form-group">
-          <label>Giờ vàng (cách nhau bởi dấu phẩy)</label>
-          <input id="auto_goldenHours" type="text" value="18:00-21:30" />
-        </div>
-        <div class="form-group">
-          <label>Ngày ưu tiên</label>
-          <div id="auto_days" class="checkbox-list compact"></div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Phòng (chọn ít nhất 1)</label>
-        <div id="auto_rooms" class="checkbox-list"></div>
-      </div>
-
-      <div class="form-grid cols-4">
-        <div class="form-group">
-          <label>Từ ngày</label>
-          <input id="auto_dateFrom" type="date" />
-        </div>
-        <div class="form-group">
-          <label>Đến ngày</label>
-          <input id="auto_dateTo" type="date" />
-        </div>
-        <div class="form-group">
-          <label>Giờ bắt đầu</label>
-          <input id="auto_dayStart" type="time" value="09:00" />
-        </div>
-        <div class="form-group">
-          <label>Giờ kết thúc</label>
-          <input id="auto_dayEnd" type="time" value="23:00" />
-        </div>
-      </div>
-
-      <div class="form-grid cols-4">
-        <div class="form-group">
-          <label>Khoảng nghỉ (phút)</label>
-          <input id="auto_gap" type="number" min="0" value="15" />
-        </div>
-        <div class="form-group">
-          <label>Bước dò (phút)</label>
-          <input id="auto_step" type="number" min="1" value="5" />
-        </div>
-        <div class="form-group">
-          <label>Lead time (phút)</label>
-          <input id="auto_lead" type="number" min="0" value="30" />
-        </div>
-        <div class="form-group">
-          <label>Tối đa/ phòng/ ngày</label>
-          <input id="auto_max" type="number" min="0" value="0" />
-        </div>
-      </div>
-
-      <div class="form-grid cols-3">
-        <div class="form-group">
-          <label>Giá vé thường</label>
-          <input id="auto_price" type="number" placeholder="50000" />
-        </div>
-        <div class="form-group">
-          <label>Giá vé VIP</label>
-          <input id="auto_priceVip" type="number" placeholder="70000" />
-        </div>
-        <div class="form-group">
-          <label>Thời lượng mặc định (phút)</label>
-          <select id="auto_defaultDuration">
-            <option value="90">90 phút</option>
-            <option value="105">105 phút</option>
-            <option value="120" selected>120 phút</option>
-            <option value="135">135 phút</option>
-            <option value="150">150 phút</option>
-            <option value="180">180 phút</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label>Phim (bỏ trống để tự chọn theo NOW_SHOWING/UPCOMING)</label>
-        <div id="auto_movies" class="checkbox-list" style="max-height: 220px;"></div>
-      </div>
-
-      <div class="form-group">
-        <label>Kết quả xem trước</label>
-        <div id="auto_previewSummary" style="color:var(--text-muted); font-size:12px; margin-bottom:8px;">Chưa có dữ liệu</div>
-        <div class="table-wrapper" style="border:1px solid var(--border); border-radius: 10px; overflow:hidden;">
-          <table>
-            <thead>
-              <tr>
-                <th>Ưu tiên</th>
-                <th>Khung</th>
-                <th>Phim</th>
-                <th>Phòng</th>
-                <th>Bắt đầu</th>
-                <th>Thời lượng</th>
-                <th>Giá</th>
-              </tr>
-            </thead>
-            <tbody id="auto_previewBody">
-              <tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted)">Nhấn "Xem trước" để tạo danh sách</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeAutoModal()">Đóng</button>
-      <button class="btn" id="auto_previewBtn" style="background:rgba(255,255,255,0.06); color:#fff; border:1px solid var(--border)">Xem trước</button>
-      <button class="btn btn-primary" id="auto_createBtn">Tạo</button>
-    </div>
-  </div>
-</div>
 
 <script src="/admin/sidebar.js"></script>
 <script>
@@ -1139,6 +974,35 @@
       });
     });
     updateBulkDeleteButton();
+    updateSummaryStats(list);
+  }
+
+  function updateSummaryStats(list) {
+    const total = list.length;
+    const now = new Date();
+    let active = 0;
+    let upcoming = 0;
+    const movieIds = new Set();
+
+    list.forEach(st => {
+      const startD = parseLocalDateTime(st.startTime);
+      const isCancelled = st.status === 'CANCELLED' || st.disabled;
+      
+      if (!isCancelled) {
+        if (startD && now < startD) upcoming++;
+        
+        const dur = st.durationMinutes || 120;
+        const endD = startD ? new Date(startD.getTime() + dur * 60000) : null;
+        if (startD && now >= startD && endD && now <= endD) active++;
+        
+        if (st.movieId) movieIds.add(st.movieId);
+      }
+    });
+
+    document.getElementById('stat_total').textContent = total;
+    document.getElementById('stat_active').textContent = active;
+    document.getElementById('stat_upcoming').textContent = upcoming;
+    document.getElementById('stat_movies').textContent = movieIds.size;
   }
 
   function updateBulkDeleteButton() {
@@ -1346,18 +1210,15 @@
       
       const cSel = document.getElementById('cr_cinema');
       const lSel = document.getElementById('l_cinema');
-      const aSel = document.getElementById('auto_cinema');
       
       cSel.innerHTML = '<option value="">Chọn rạp</option>';
       lSel.innerHTML = '<option value="">Tất cả rạp</option>';
-      if (aSel) aSel.innerHTML = '<option value="">Chọn rạp</option>';
       
       list.forEach(c => {
         if ((c.status||'').toUpperCase() === 'ACTIVE') {
           const opt = `<option value="${c.name}" data-id="${c.id}">${c.name}</option>`;
           cSel.insertAdjacentHTML('beforeend', opt);
           lSel.insertAdjacentHTML('beforeend', opt);
-          if (aSel) aSel.insertAdjacentHTML('beforeend', opt);
         }
       });
       
@@ -1401,260 +1262,6 @@
       roomSel.innerHTML = '<option value="DEFAULT">Default</option>';
     }
   }
-
-  function openAutoModal() {
-    const overlay = document.getElementById('autoOverlay');
-    if (!overlay) return;
-    overlay.classList.add('active');
-
-    autoPreviewItems = [];
-    document.getElementById('auto_previewSummary').textContent = 'Chưa có dữ liệu';
-    document.getElementById('auto_previewBody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted)">Nhấn "Xem trước" để tạo danh sách</td></tr>';
-
-    const from = document.getElementById('auto_dateFrom');
-    const to = document.getElementById('auto_dateTo');
-    const today = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    const ds = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
-    if (from && !from.value) from.value = ds;
-    if (to && !to.value) to.value = ds;
-
-    const cinemaSel = document.getElementById('auto_cinema');
-    if (cinemaSel && cinemaSel.value) loadAutoRooms(cinemaSel);
-    initAutoDays();
-    if (window.allMoviesRaw) {
-      const list = Array.isArray(window.allMoviesRaw) ? window.allMoviesRaw.filter(m => ['NOW_SHOWING','UPCOMING'].includes((m.status||'').toUpperCase())) : [];
-      renderAutoMovies(list);
-    }
-  }
-
-  function initAutoDays() {
-    const root = document.getElementById('auto_days');
-    if (!root) return;
-    if (root.childElementCount > 0) return;
-
-    const days = [
-      { code: 'MONDAY', label: 'T2', checked: false },
-      { code: 'TUESDAY', label: 'T3', checked: false },
-      { code: 'WEDNESDAY', label: 'T4', checked: false },
-      { code: 'THURSDAY', label: 'T5', checked: false },
-      { code: 'FRIDAY', label: 'T6', checked: true },
-      { code: 'SATURDAY', label: 'T7', checked: true },
-      { code: 'SUNDAY', label: 'CN', checked: true }
-    ];
-
-    root.innerHTML = '';
-    days.forEach(d => {
-      const id = 'auto_day_' + d.code;
-      const wrap = document.createElement('label');
-      wrap.className = 'checkbox-item';
-      wrap.innerHTML = `<input type="checkbox" id="${id}" data-code="${d.code}" ${d.checked ? 'checked' : ''}><span>${d.label}</span>`;
-      root.appendChild(wrap);
-    });
-  }
-
-  function closeAutoModal() {
-    const overlay = document.getElementById('autoOverlay');
-    if (!overlay) return;
-    overlay.classList.remove('active');
-    autoPreviewItems = [];
-  }
-
-  async function loadAutoRooms(cinemaSel) {
-    const root = document.getElementById('auto_rooms');
-    if (!root) return;
-    root.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:12px;">Đang tải...</div>';
-
-    const opt = cinemaSel.options[cinemaSel.selectedIndex];
-    const cinemaId = opt ? opt.getAttribute('data-id') : null;
-    if (!cinemaId) {
-      root.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:12px;">Chọn rạp để tải phòng</div>';
-      return;
-    }
-
-    try {
-      const r = await fetch(window.location.origin + '/api/admin/cinemas/' + cinemaId + '/rooms', { headers: hdrs() });
-      const rooms = r.ok ? await r.json() : [];
-      root.innerHTML = '';
-      const activeRooms = Array.isArray(rooms) ? rooms.filter(rm => (rm.status||'').toString().toUpperCase() !== 'MAINTENANCE') : [];
-      if (activeRooms.length === 0) {
-        root.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:12px;">Không có phòng hoạt động</div>';
-        return;
-      }
-      activeRooms.forEach(rm => {
-        const id = 'auto_rm_' + rm.id;
-        const wrap = document.createElement('label');
-        wrap.className = 'checkbox-item';
-        wrap.innerHTML = `<input type="checkbox" id="${id}" data-name="${rm.name}" checked><span>${rm.name}</span>`;
-        root.appendChild(wrap);
-      });
-    } catch (e) {
-      root.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--danger); padding:12px;">Lỗi tải phòng</div>';
-    }
-  }
-
-  function collectAutoRequest() {
-    const cinema = document.getElementById('auto_cinema').value;
-    if (!cinema) { notify('Vui lòng chọn rạp'); return null; }
-
-    const goldenRaw = (document.getElementById('auto_goldenHours').value || '').trim();
-    const goldenHours = goldenRaw
-      ? goldenRaw.split(',').map(s => s.trim()).filter(Boolean)
-      : [];
-
-    const goldenDays = [];
-    const daysRoot = document.getElementById('auto_days');
-    if (daysRoot) {
-      daysRoot.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        if (cb.checked) {
-          const code = cb.getAttribute('data-code');
-          if (code) goldenDays.push(code);
-        }
-      });
-    }
-
-    const roomsRoot = document.getElementById('auto_rooms');
-    const rooms = [];
-    roomsRoot.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-      if (cb.checked) {
-        const name = cb.getAttribute('data-name');
-        if (name) rooms.push(name);
-      }
-    });
-    if (rooms.length === 0) { notify('Vui lòng chọn ít nhất 1 phòng'); return null; }
-
-    const price = parseInt(document.getElementById('auto_price').value, 10);
-    const priceVip = parseInt(document.getElementById('auto_priceVip').value, 10);
-    if (!price) { notify('Vui lòng nhập giá vé thường'); return null; }
-
-    const movieIds = [];
-    const moviesRoot = document.getElementById('auto_movies');
-    moviesRoot.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-      if (cb.checked) {
-        const id = parseInt(cb.getAttribute('data-id'), 10);
-        if (id) movieIds.push(id);
-      }
-    });
-
-    const dateFrom = document.getElementById('auto_dateFrom').value;
-    const dateTo = document.getElementById('auto_dateTo').value || dateFrom;
-    const dayStart = document.getElementById('auto_dayStart').value || '09:00';
-    const dayEnd = document.getElementById('auto_dayEnd').value || '23:00';
-
-    const gapMinutes = parseInt(document.getElementById('auto_gap').value, 10);
-    const stepMinutes = parseInt(document.getElementById('auto_step').value, 10);
-    const leadTimeMinutes = parseInt(document.getElementById('auto_lead').value, 10);
-    const maxPerRoomPerDay = parseInt(document.getElementById('auto_max').value, 10);
-    const defaultDurationMinutes = parseInt(document.getElementById('auto_defaultDuration').value, 10);
-    const revenueRange = document.getElementById('auto_revenueRange').value || 'month';
-
-    return {
-      cinema,
-      rooms,
-      dateFrom,
-      dateTo,
-      dayStart,
-      dayEnd,
-      gapMinutes: isNaN(gapMinutes) ? 15 : gapMinutes,
-      stepMinutes: isNaN(stepMinutes) ? 5 : stepMinutes,
-      leadTimeMinutes: isNaN(leadTimeMinutes) ? 30 : leadTimeMinutes,
-      maxPerRoomPerDay: isNaN(maxPerRoomPerDay) ? 0 : maxPerRoomPerDay,
-      defaultDurationMinutes: isNaN(defaultDurationMinutes) ? 120 : defaultDurationMinutes,
-      price,
-      priceVip: priceVip || null,
-      currency: "VND",
-      revenueRange,
-      movieIds,
-      goldenHours,
-      goldenDays
-    };
-  }
-
-  async function readApiError(r) {
-    let txt = '';
-    try { txt = await r.text(); } catch(e) {}
-    if (!txt) return `HTTP ${r.status} ${r.statusText || ''}`.trim();
-    try {
-      const j = JSON.parse(txt);
-      return (j.detail || j.message || j.error || j.title || txt);
-    } catch (e) {
-      return txt;
-    }
-  }
-
-  async function autoPreview() {
-    const req = collectAutoRequest();
-    if (!req) return;
-    try {
-      document.getElementById('auto_previewBtn').textContent = 'Đang tạo...';
-      const r = await fetch(api + '/admin/showtimes/auto/preview', { method: 'POST', headers: hdrs(), body: JSON.stringify(req) });
-      if (!r.ok) {
-        const msg = await readApiError(r);
-        notify('Thất bại: ' + msg);
-        return;
-      }
-      const data = await r.json();
-      autoPreviewItems = Array.isArray(data.items) ? data.items : [];
-      document.getElementById('auto_previewSummary').textContent = 'Tổng: ' + (data.count || autoPreviewItems.length) + ' suất';
-      renderAutoPreview(autoPreviewItems);
-    } catch (e) {
-      notify('Lỗi kết nối: ' + e.message);
-    } finally {
-      document.getElementById('auto_previewBtn').textContent = 'Xem trước';
-    }
-  }
-
-  function renderAutoPreview(items) {
-    const tbody = document.getElementById('auto_previewBody');
-    tbody.innerHTML = '';
-    if (!Array.isArray(items) || items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:var(--text-muted)">Không tạo được suất chiếu phù hợp</td></tr>';
-      return;
-    }
-    items.slice(0, 200).forEach(it => {
-      const tr = document.createElement('tr');
-      const startD = parseLocalDateTime(it.startTime);
-      const startStr = fmtDate(startD);
-      tr.innerHTML = `
-        <td style="font-weight:700; color:var(--primary)">${it.priorityScore || 0}</td>
-        <td style="font-size:12px; color:var(--text-muted)">${it.slotTag || ''}</td>
-        <td>${it.movieTitle || '---'}</td>
-        <td>${it.room || ''}</td>
-        <td>${startStr}</td>
-        <td>${it.durationMinutes || ''}</td>
-        <td>${new Intl.NumberFormat('vi-VN').format(it.price || 0)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    if (items.length > 200) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td colspan="7" style="text-align:center; padding:10px; color:var(--text-muted)">Hiển thị 200/${items.length} suất</td>`;
-      tbody.appendChild(tr);
-    }
-  }
-
-  async function autoCreate() {
-    const req = collectAutoRequest();
-    if (!req) return;
-    try {
-      document.getElementById('auto_createBtn').textContent = 'Đang tạo...';
-      const r = await fetch(api + '/admin/showtimes/auto/create', { method: 'POST', headers: hdrs(), body: JSON.stringify(req) });
-      if (!r.ok) {
-        const msg = await readApiError(r);
-        notify('Thất bại: ' + msg);
-        return;
-      }
-      const data = await r.json().catch(() => ({}));
-      notify(`Đã tạo ${data.created || 0}/${data.planned || 0} suất (bỏ qua ${data.skipped || 0})`);
-      closeAutoModal();
-      loadShowtimes();
-    } catch (e) {
-      notify('Lỗi kết nối: ' + e.message);
-    } finally {
-      document.getElementById('auto_createBtn').textContent = 'Tạo';
-    }
-  }
-
   // --- Deletion ---
   window.deleteShowtime = async function(id) {
     const ok = await window.adminConfirm({
@@ -1687,7 +1294,6 @@
     
     // Bindings
     document.getElementById('loadShowtimesBtn').addEventListener('click', loadShowtimes);
-    document.getElementById('openAutoBtn').addEventListener('click', openAutoModal);
     document.getElementById('l_q').addEventListener('input', applyFilters);
     document.getElementById('l_date').addEventListener('change', applyFilters);
     document.getElementById('l_cinema').addEventListener('change', applyFilters);
@@ -1713,12 +1319,6 @@
     
     document.getElementById('cr_createBtn').addEventListener('click', createShowtime);
     document.getElementById('ed_saveBtn').addEventListener('click', saveEditShowtime);
-
-    document.getElementById('auto_cinema').addEventListener('change', function() {
-      loadAutoRooms(this);
-    });
-    document.getElementById('auto_previewBtn').addEventListener('click', autoPreview);
-    document.getElementById('auto_createBtn').addEventListener('click', autoCreate);
     
     // Initial Loads
     loadCinemas();

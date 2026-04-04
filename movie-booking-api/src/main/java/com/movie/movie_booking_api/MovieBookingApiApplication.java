@@ -117,8 +117,12 @@ public class MovieBookingApiApplication {
         private static final Logger log = LoggerFactory.getLogger(ShowTimeStatusTask.class);
         @Autowired
         private com.movie.movie_booking_api.repository.ShowTimeRepository showTimeRepository;
-        @Scheduled(initialDelay = 10000, fixedDelay = 300000)
-        @org.springframework.cache.annotation.CacheEvict(value = "showtimes", allEntries = true)
+        @Scheduled(initialDelay = 10000, fixedDelay = 60000)
+        @org.springframework.cache.annotation.Caching(evict = {
+            @org.springframework.cache.annotation.CacheEvict(value = "showtimes", allEntries = true),
+            @org.springframework.cache.annotation.CacheEvict(value = "public_now_playing", allEntries = true),
+            @org.springframework.cache.annotation.CacheEvict(value = "public_upcoming", allEntries = true)
+        })
         @org.springframework.transaction.annotation.Transactional
         public void sync() {
             int upcoming = showTimeRepository.markUpcoming();

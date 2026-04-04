@@ -649,16 +649,39 @@
       <div class="form-grid cols-2">
         <div class="form-group">
           <label>Rạp</label>
-          <input id="ed_cinema" type="text" readonly style="background:rgba(0,0,0,0.2); cursor:not-allowed" />
+          <select id="ed_cinema"></select>
         </div>
         <div class="form-group">
           <label>Phòng</label>
-          <input id="ed_room" type="text" readonly style="background:rgba(0,0,0,0.2); cursor:not-allowed" />
+          <select id="ed_room"><option value="">Chọn rạp trước</option></select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Bắt đầu</label>
-        <input id="ed_startTime" type="text" readonly style="background:rgba(0,0,0,0.2); cursor:not-allowed" />
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label>Bắt đầu</label>
+          <input id="ed_startTime" type="datetime-local" />
+        </div>
+        <div class="form-group">
+          <label>Thời lượng</label>
+          <select id="ed_duration">
+            <option value="90">90 phút</option>
+            <option value="105">105 phút</option>
+            <option value="120">120 phút</option>
+            <option value="135">135 phút</option>
+            <option value="150">150 phút</option>
+            <option value="180">180 phút</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label>Giá vé (Thường)</label>
+          <input id="ed_price" type="number" placeholder="50000" />
+        </div>
+        <div class="form-group">
+          <label>Giá vé (VIP)</label>
+          <input id="ed_priceVip" type="number" placeholder="70000" />
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1111,11 +1134,26 @@
     const title = st.movieTitle || '---';
     document.getElementById('ed_modalTitle').textContent = `Chỉnh sửa suất chiếu #${st.id}`;
     document.getElementById('ed_title').value = title;
-    document.getElementById('ed_cinema').value = st.cinema || '';
-    document.getElementById('ed_room').value = st.room || '';
-    document.getElementById('ed_startTime').value = st.startTime ? fmtDate(parseLocalDateTime(st.startTime)) : '';
+    
+    // Set Cinema and trigger room load
+    const eCinema = document.getElementById('ed_cinema');
+    if (eCinema) {
+      eCinema.value = st.cinema || '';
+      handleCinemaChange(eCinema, 'ed_room').then(() => {
+        const eRoom = document.getElementById('ed_room');
+        if (eRoom) eRoom.value = st.room || '';
+      });
+    }
+    
+    document.getElementById('ed_startTime').value = toLocalInputValue(st.startTime);
+    document.getElementById('ed_duration').value = st.durationMinutes || 120;
+    document.getElementById('ed_price').value = st.price || '';
+    const stPriceVip = st.pricing && st.pricing.VIP ? st.pricing.VIP : (st.priceVip || '');
+    document.getElementById('ed_priceVip').value = stPriceVip;
+    
     document.getElementById('ed_status').value = toStatusOptionFromRow(st);
     document.getElementById('ed_disabled').value = (st.disabled ? 'true' : 'false');
+    
     const editOverlay = document.getElementById('editOverlay');
     if (editOverlay) editOverlay.classList.add('active');
   }
@@ -1128,9 +1166,30 @@
 
   async function saveEditShowtime() {
     if (!editingShowtimeId) return;
+    
+    const cinema = document.getElementById('ed_cinema').value;
+    const room = document.getElementById('ed_room').value;
+    const startTime = document.getElementById('ed_startTime').value;
+    const durationMinutes = parseInt(document.getElementById('ed_duration').value, 10);
+    const price = parseInt(document.getElementById('ed_price').value, 10);
+    const priceVip = parseInt(document.getElementById('ed_priceVip').value, 10);
     const status = document.getElementById('ed_status').value;
     const disabled = document.getElementById('ed_disabled').value === 'true';
-    const body = { status, disabled };
+    
+    if (!cinema) { notify('Vui lòng chọn rạp'); return; }
+    if (!startTime) { notify('Vui lòng chọn thời gian'); return; }
+    if (!price) { notify('Vui lòng nhập giá vé'); return; }
+
+    const body = { 
+      cinema, 
+      room, 
+      startTime: startTime.length === 16 ? startTime + ':00' : startTime,
+      durationMinutes,
+      price,
+      priceVip: priceVip || null,
+      status, 
+      disabled 
+    };
     const btn = document.getElementById('ed_saveBtn');
     const oldText = btn ? btn.textContent : '';
     try {
@@ -1210,15 +1269,18 @@
       
       const cSel = document.getElementById('cr_cinema');
       const lSel = document.getElementById('l_cinema');
+      const eSel = document.getElementById('ed_cinema');
       
       cSel.innerHTML = '<option value="">Chọn rạp</option>';
       lSel.innerHTML = '<option value="">Tất cả rạp</option>';
+      if (eSel) eSel.innerHTML = '<option value="">Chọn rạp</option>';
       
       list.forEach(c => {
         if ((c.status||'').toUpperCase() === 'ACTIVE') {
           const opt = `<option value="${c.name}" data-id="${c.id}">${c.name}</option>`;
           cSel.insertAdjacentHTML('beforeend', opt);
           lSel.insertAdjacentHTML('beforeend', opt);
+          if (eSel) eSel.insertAdjacentHTML('beforeend', opt);
         }
       });
       
@@ -1319,6 +1381,9 @@
     
     document.getElementById('cr_createBtn').addEventListener('click', createShowtime);
     document.getElementById('ed_saveBtn').addEventListener('click', saveEditShowtime);
+    document.getElementById('ed_cinema').addEventListener('change', function() {
+      handleCinemaChange(this, 'ed_room');
+    });
     
     // Initial Loads
     loadCinemas();

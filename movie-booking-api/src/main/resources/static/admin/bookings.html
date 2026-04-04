@@ -279,6 +279,7 @@
                         <th>Ghế đã đặt</th>
                         <th>Tổng tiền</th>
                         <th>Suất chiếu</th>
+                        <th>Địa điểm chiếu phim</th>
                     </tr>
                 </thead>
                 <tbody id="listBody">
@@ -356,7 +357,7 @@
         if (!arr.length) {
             tb.innerHTML = `
                 <tr>
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="empty-state">
                             <i class="fas fa-ticket-alt"></i>
                             <p>Không tìm thấy dữ liệu đặt vé nào</p>
@@ -383,6 +384,7 @@
                 <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
                 <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
                 <td>${startStr}</td>
+                <td>${b.cinema || '<span style="color:var(--text-muted)">N/A</span>'}</td>
             `;
             tb.appendChild(tr);
             sum += price;
@@ -409,7 +411,7 @@
             if (keys.length === 0) {
                 tb.innerHTML = `
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="empty-state">
                                 <i class="fas fa-ticket-alt"></i>
                                 <p>Không tìm thấy dữ liệu (kể cả trong bộ nhớ tạm)</p>
@@ -441,6 +443,7 @@
                             <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
                             <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
                             <td>${startStr}</td>
+                            <td>${b.cinema || '<span style="color:var(--text-muted)">N/A</span>'}</td>
                         `;
                         tb.appendChild(tr);
                         sum += price;

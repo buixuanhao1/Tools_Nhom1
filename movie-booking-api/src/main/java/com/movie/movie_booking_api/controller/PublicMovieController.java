@@ -76,6 +76,7 @@ public class PublicMovieController {
     }
 
     @GetMapping("/public/cast")
+    @org.springframework.cache.annotation.Cacheable(value = "tmdb_cast", key = "#tmdbId", unless = "#result == null")
     public ResponseEntity<?> publicCast(@RequestParam("movieId") Long tmdbId) {
         List<Map<String, Object>> result = fetchTmdbCastSnake(tmdbId);
         return ResponseEntity.ok(result);
@@ -110,13 +111,12 @@ public class PublicMovieController {
     }
 
     @GetMapping("/public/detail")
+    @org.springframework.cache.annotation.Cacheable(value = "tmdb_detail", key = "#tmdbId", unless = "#result == null")
     public ResponseEntity<?> publicDetail(@RequestParam("movieId") Long tmdbId) {
         java.util.Map<String, Object> result = new java.util.HashMap<>();
         if (tmdbId == null) return ResponseEntity.ok(result);
-        String cacheKey = "detail:" + tmdbId;
-        long now = System.currentTimeMillis();
-        CacheEntry ce = cache.get(cacheKey);
-        if (ce != null && ce.expiresAt > now) return ResponseEntity.ok(ce.data);
+        
+        // Use Spring Cache instead of manual cache map
         result.put("id", tmdbId);
         result.put("tmdbId", tmdbId);
         String base = "https://api.themoviedb.org/3/movie/" + tmdbId + "?language=vi-VN";
@@ -285,10 +285,81 @@ public class PublicMovieController {
         if (backdropPath != null && !backdropPath.isBlank()) result.put("backdrop_path", backdropPath);
         if (title != null && !title.isBlank()) result.put("title", title);
         if (overview != null && !overview.isBlank()) result.put("overview", overview);
-        if (result.size() > 2) {
-            cache.put(cacheKey, new CacheEntry(now + 10 * 60_000L, result));
-        }
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/public/full-detail")
+    public ResponseEntity<?> publicFullDetail(@RequestParam("movieId") Long movieId) {
+        java.util.Map<String, Object> out = new java.util.HashMap<>();
+        if (movieId == null) return ResponseEntity.ok(out);
+
+        // 1. Resolve internal vs tmdb ID
+        Long tmdbId = movieId;
+        Long internalId = null;
+        com.movie.movie_booking_api.entity.Movie movie = null;
+
+        // Try as internal ID first
+        java.util.Optional<com.movie.movie_booking_api.entity.Movie> opt = movieRepository.findById(movieId);
+        if (opt.isPresent()) {
+            movie = opt.get();
+            internalId = movie.getId();
+            tmdbId = movie.getTmdbId();
+        } else {
+            // Try as tmdb ID
+            opt = movieRepository.findByTmdbId(movieId);
+            if (opt.isPresent()) {
+                movie = opt.get();
+                internalId = movie.getId();
+                tmdbId = movie.getTmdbId();
+            }
+        }
+
+        // 2. Fetch Detail
+        java.util.Map<String, Object> detail = null;
+        if (tmdbId != null) {
+            ResponseEntity<?> resp = publicDetail(tmdbId);
+            if (resp.getStatusCode().is2xxSuccessful()) {
+                detail = (java.util.Map<String, Object>) resp.getBody();
+            }
+        }
+        
+        if (detail == null && movie != null) {
+            detail = new java.util.HashMap<>();
+            detail.put("id", movie.getTmdbId() != null ? movie.getTmdbId() : movie.getId());
+            detail.put("title", movie.getTitleVi() != null ? movie.getTitleVi() : movie.getTitle());
+            detail.put("overview", movie.getOverviewVi() != null ? movie.getOverviewVi() : movie.getDescription());
+            detail.put("poster_path", toTmdbPath(movie.getPosterUrl()));
+            detail.put("backdrop_path", toTmdbPath(movie.getBackdropUrl()));
+            detail.put("runtime", movie.getRuntime());
+            detail.put("director", movie.getDirector());
+        }
+        out.put("detail", detail);
+
+        // 3. Fetch Cast
+        if (tmdbId != null) {
+            out.put("cast", publicCast(tmdbId).getBody());
+        } else if (movie != null && movie.getCast() != null) {
+            String[] names = movie.getCast().split(",");
+            java.util.List<java.util.Map<String, Object>> castList = new java.util.ArrayList<>();
+            for (String n : names) {
+                java.util.Map<String, Object> c = new java.util.HashMap<>();
+                c.put("name", n.trim());
+                castList.add(c);
+            }
+            out.put("cast", castList);
+        }
+
+        // 4. Fetch Videos
+        if (tmdbId != null) {
+            out.put("videos", publicVideos(tmdbId).getBody());
+        }
+
+        // 5. Fetch Showtimes
+        if (internalId != null) {
+            out.put("showtimes", publicShowtimes(internalId).getBody());
+        }
+
+        return ResponseEntity.ok(out);
     }
 
     private String fetchTmdbDirectorName(Long tmdbId) throws Exception {
@@ -328,6 +399,7 @@ public class PublicMovieController {
     }
 
     @GetMapping("/public/videos")
+    @org.springframework.cache.annotation.Cacheable(value = "tmdb_videos", key = "#tmdbId", unless = "#result == null")
     public ResponseEntity<?> publicVideos(@RequestParam("movieId") Long tmdbId) {
         java.util.Map<String, Object> out = new java.util.HashMap<>();
         if (tmdbId == null) return ResponseEntity.ok(out);

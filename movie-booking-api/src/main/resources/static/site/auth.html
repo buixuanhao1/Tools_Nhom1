@@ -3,74 +3,569 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xác thực</title>
+  <title>Xác thực - Movie Booking</title>
+
+  <!-- Script font for brand name -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="/site/common.css" />
+
+  <style>
+    /* ─── Reset: hide common header, remove body padding ─── */
+    body  { padding-top: 0; }
+    header { display: none !important; }
+
+    /* ─── Full-screen auth background ─── */
+    .auth-page {
+      min-height: 100vh;
+      background: #070c18;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ══════════════════════════════
+       Card base
+    ══════════════════════════════ */
+    .ac {
+      background: #111827;
+      border-radius: 20px;
+      padding: 32px 28px 28px;
+      width: 100%;
+      max-width: 390px;
+      border: 1.5px solid transparent;
+      transition: border-color .3s, box-shadow .3s;
+    }
+
+    /* Register card gets the purple Figma border */
+    .ac.variant-register {
+      border-color: #7c3aed;
+      box-shadow:
+        0 0 0 1px rgba(124, 58, 237, .15),
+        0 0 48px rgba(124, 58, 237, .22);
+    }
+
+    /* ══════════════════════════════
+       Brand area  (logo + name)
+    ══════════════════════════════ */
+    .ac-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ac-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #f97316;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 900;
+      font-family: Georgia, serif;
+      flex-shrink: 0;
+    }
+
+    .ac-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: .5px;
+    }
+
+    /* ══════════════════════════════
+       Section title (below brand)
+    ══════════════════════════════ */
+    .ac-title {
+      text-align: center;
+      color: #f1f5f9;
+      font-size: 17px;
+      font-weight: 700;
+      margin: 20px 0 20px;
+    }
+
+    /* ══════════════════════════════
+       Input fields
+    ══════════════════════════════ */
+    .ac-field {
+      display: flex;
+      align-items: center;
+      background: #1c2537;
+      border: 1px solid #2a3549;
+      border-radius: 8px;
+      padding: 0 14px;
+      height: 46px;
+      margin-bottom: 12px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .ac-field:focus-within {
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, .12);
+    }
+
+    /* Icon slot */
+    .ac-field .fi {
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Text input inside field */
+    .ac-field input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #f1f5f9;
+      font-size: 14px;
+      font-family: 'Inter', system-ui, sans-serif;
+      outline: none;
+      height: 100%;
+      padding: 0;
+      min-width: 0;
+    }
+    .ac-field input::placeholder { color: #4b5563; }
+
+    /* Autofill fix */
+    .ac-field input:-webkit-autofill,
+    .ac-field input:-webkit-autofill:hover,
+    .ac-field input:-webkit-autofill:focus {
+      -webkit-text-fill-color: #f1f5f9;
+      box-shadow: 0 0 0px 1000px #1c2537 inset;
+      caret-color: #f97316;
+    }
+
+    /* Eye toggle button */
+    .ac-field .eye {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0;
+      height: auto;
+      margin-left: 8px;
+      transition: color .2s;
+      flex-shrink: 0;
+    }
+    .ac-field .eye:hover { color: #94a3b8; }
+
+    /* Forgot password micro-link (right-aligned) */
+    .ac-forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -6px;
+      margin-bottom: 14px;
+    }
+    .ac-forgot-row .lk {
+      font-size: 12px;
+      color: #64748b;
+      cursor: pointer;
+    }
+    .ac-forgot-row .lk:hover { color: #94a3b8; }
+
+    /* ══════════════════════════════
+       Primary (submit) button
+    ══════════════════════════════ */
+    .ac-btn {
+      width: 100%;
+      height: 48px;
+      background: #eab308;
+      border: none;
+      border-radius: 8px;
+      color: #0f172a;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', system-ui, sans-serif;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: background .2s, transform .1s;
+      letter-spacing: .3px;
+    }
+    .ac-btn:hover  { background: #ca8a04; }
+    .ac-btn:active { transform: scale(.98); }
+
+    /* ══════════════════════════════
+       "Hoặc" divider
+    ══════════════════════════════ */
+    .ac-or {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .ac-or::before,
+    .ac-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #1f2d40;
+    }
+
+    /* ══════════════════════════════
+       Social login buttons
+    ══════════════════════════════ */
+    .ac-socials {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .ac-fb {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #1877f2;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      font-family: Georgia, serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, transform .1s;
+    }
+    .ac-fb:hover  { background: #1558b0; }
+    .ac-fb:active { transform: scale(.94); }
+
+    /* ══════════════════════════════
+       Footer hint text
+    ══════════════════════════════ */
+    .ac-hint {
+      text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+    }
+    .ac-hint .lk {
+      color: #f97316;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .ac-hint .lk:hover { color: #fb923c; }
+
+    /* Plain variant (white text, no orange link) */
+    .ac-hint.plain { color: #e2e8f0; }
+    .ac-hint.plain .lk {
+      color: #e2e8f0;
+      font-weight: 400;
+    }
+    .ac-hint.plain .lk:hover { color: #94a3b8; }
+
+    /* ══════════════════════════════
+       Responsive
+    ══════════════════════════════ */
+    @media (max-width: 480px) {
+      .ac {
+        padding: 24px 18px 22px;
+        border-radius: 16px;
+        max-width: 100%;
+      }
+      .ac-logo { width: 46px; height: 46px; font-size: 24px; }
+      .ac-name  { font-size: 24px; }
+    }
+  </style>
 </head>
 <body>
+  <!-- header is hidden by CSS; kept for common.js compatibility -->
   <header>
-    <div class="brand"><div class="logo">MB</div> Movie Booking</div>
+    <div class="brand" data-go-home><div class="logo">M</div> Movie Booking</div>
   </header>
-  <div class="container full">
-    <div class="hero">
-      <div class="auth-modal">
-        <div class="auth-card">
-          <div class="card-logo">MB</div>
-          <div id="cardTitle" class="card-title">Đăng Nhập Tài Khoản</div>
-          <div id="login">
-            <div class="field light"><span class="icon">@</span><input id="email" type="email" placeholder="Email" /></div>
-            <div class="field light"><input id="password" type="password" placeholder="Mật khẩu" /><button id="togglePw" class="toggle">Hiện</button></div>
-            <button id="doLogin" class="primary cta-full" style="margin-top:12px">Đăng nhập</button>
-            <div class="form-actions simple"><span id="linkForgot" class="link">Quên mật khẩu?</span></div>
-            <div class="divider"></div>
-            <div class="hint-row light">Bạn chưa có tài khoản? <span id="linkToRegister" class="link">Đăng ký</span></div>
 
-          </div>
-          <div id="register" class="hidden">
-            <div class="field light"><input id="regName" type="text" placeholder="Họ và tên" /></div>
-            <div class="field light"><span class="icon">@</span><input id="regEmail" type="email" placeholder="Email" /></div>
-            <div class="field light"><input id="regPassword" type="password" placeholder="Mật khẩu" /><button id="toggleRegPw" class="toggle">Hiện</button></div>
-            <div class="field light"><input id="regConfirm" type="password" placeholder="Xác nhận mật khẩu" /><button id="toggleRegCf" class="toggle">Hiện</button></div>
-            <button id="doRegister" class="primary cta-full" style="margin-top:12px">Đăng ký</button>
-            <div class="hint-row light">Đã có tài khoản? <span id="linkToLogin" class="link">Đăng nhập</span></div>
-            <div id="resendHintRegister" class="hint-row light hidden">Chưa nhận email xác minh? <span id="resendFromRegister" class="link">Gửi lại</span></div>
-          </div>
-          <div id="forgot" class="hidden">
-            <div class="card-title">Quên Mật Khẩu</div>
-            <div class="field light"><span class="icon">@</span><input id="forgotEmail" type="email" placeholder="Email" /></div>
-            <div class="form-actions" style="justify-content:flex-end"><button id="doForgot" class="primary">Gửi yêu cầu</button></div>
-          </div>
-        </div>
+  <div class="auth-page">
+
+    <!-- ══════════════════════════════
+         ĐĂNG NHẬP
+    ══════════════════════════════ -->
+    <div id="cardLogin" class="ac">
+
+      <div class="ac-brand">
+        <div class="ac-logo">M</div>
+        <span class="ac-name">MOVIE BOOKING</span>
       </div>
-    </div>
-  </div>
+
+      <div class="ac-title">Đăng Nhập</div>
+
+      <!-- Email -->
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </span>
+        <input id="email" type="email" placeholder="Email" autocomplete="email" />
+      </div>
+
+      <!-- Password -->
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input id="password" type="password" placeholder="Mật khẩu" autocomplete="current-password" />
+        <button id="togglePw" class="eye" type="button" title="Hiện / ẩn mật khẩu">
+          <!-- eye icon -->
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Quên mật khẩu link -->
+      <div class="ac-forgot-row">
+        <span id="linkForgot" class="lk">Quên mật khẩu?</span>
+      </div>
+
+      <button id="doLogin" class="ac-btn">Đăng Nhập</button>
+
+      <div class="ac-or">Hoặc</div>
+
+      <div class="ac-socials">
+        <button class="ac-fb" type="button" title="Đăng nhập với Facebook">f</button>
+      </div>
+
+      <div class="ac-hint">
+        Chưa có tài khoản?
+        <span id="linkToRegister" class="lk">Đăng Ký ngay</span>
+      </div>
+    </div><!-- /cardLogin -->
+
+    <!-- ══════════════════════════════
+         ĐĂNG KÝ
+    ══════════════════════════════ -->
+    <div id="cardRegister" class="ac variant-register hidden">
+
+      <div class="ac-brand">
+        <div class="ac-logo">M</div>
+        <span class="ac-name">MOVIE BOOKING</span>
+      </div>
+
+      <div class="ac-title">Đăng Ký Tài Khoản</div>
+
+      <!-- Email -->
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </span>
+        <input id="regEmail" type="email" placeholder="Email" autocomplete="email" />
+      </div>
+
+      <!-- Password -->
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input id="regPassword" type="password" placeholder="Mật Khẩu" autocomplete="new-password" />
+        <button id="toggleRegPw" class="eye" type="button">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Confirm password -->
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <input id="regConfirm" type="password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" />
+        <button id="toggleRegCf" class="eye" type="button">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Hidden: name derived from email for API compatibility -->
+      <input id="regName" type="hidden" value="" />
+
+      <button id="doRegister" class="ac-btn">Đăng Ký</button>
+
+      <div class="ac-hint plain">
+        <span id="linkToLogin" class="lk">Quay lại trang Đăng Nhập</span>
+      </div>
+
+      <div id="resendHintRegister" class="ac-hint hidden" style="margin-top:10px">
+        Chưa nhận email xác minh?
+        <span id="resendFromRegister" class="lk">Gửi lại</span>
+      </div>
+    </div><!-- /cardRegister -->
+
+    <!-- ══════════════════════════════
+         QUÊN MẬT KHẨU  (hidden panel)
+    ══════════════════════════════ -->
+    <div id="cardForgot" class="ac hidden">
+
+      <div class="ac-brand">
+        <div class="ac-logo">M</div>
+        <span class="ac-name">MOVIE BOOKING</span>
+      </div>
+
+      <div class="ac-title">Quên Mật Khẩu</div>
+
+      <div class="ac-field">
+        <span class="fi">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </span>
+        <input id="forgotEmail" type="email" placeholder="Email" autocomplete="email" />
+      </div>
+
+      <button id="doForgot" class="ac-btn">Gửi yêu cầu</button>
+
+      <div class="ac-hint">
+        <span id="linkForgotBack" class="lk">Quay lại Đăng Nhập</span>
+      </div>
+    </div><!-- /cardForgot -->
+
+  </div><!-- /auth-page -->
+
   <script src="/site/common.js"></script>
   <script>
     const next = new URLSearchParams(location.search).get('next') || '/site/home.html';
-    (function(){ try{ const bg = new URLSearchParams(location.search).get('bg'); if(bg){ const h=document.querySelector('.hero'); if(h){ h.style.backgroundImage = `url(${bg})`; h.classList.add('has-bg'); } } }catch{} })();
-    function setTab(t){
-      document.getElementById('login').classList.toggle('hidden', t!=='login');
-      document.getElementById('register').classList.toggle('hidden', t!=='register');
-      document.getElementById('forgot').classList.toggle('hidden', t!=='forgot');
-      const title = document.getElementById('cardTitle');
-      if(title){
-        if(t==='login') title.textContent = 'Đăng Nhập Tài Khoản';
-        else if(t==='register') title.textContent = 'Đăng Ký Tài Khoản';
-        else if(t==='forgot') title.textContent = 'Quên Mật Khẩu';
-      }
-    }
-    document.getElementById('linkForgot').onclick = ()=>setTab('forgot');
-    document.getElementById('linkToRegister').onclick = ()=>setTab('register');
-    document.getElementById('linkToLogin').onclick = ()=>setTab('login');
-    document.getElementById('doLogin').onclick = async ()=>{ const email=document.getElementById('email').value; const password=document.getElementById('password').value; if(!email||!password){ toast('Nhập email và mật khẩu'); return; } try{ const res=await fetchJson(API.login, { method:'POST', body: JSON.stringify({ email, password }) }); setToken(res.token); setFlash('Đăng nhập thành công, chào mừng bạn đến với Movie Booking'); location.href=next; }catch(e){ toast(e.message); }};
-    document.getElementById('doRegister').onclick = async ()=>{ const name=(document.getElementById('regName').value||'').trim(); const email=document.getElementById('regEmail').value; const password=document.getElementById('regPassword').value; const confirm=document.getElementById('regConfirm').value; if(!name||!email||!password||password!==confirm){ toast('Xác thực đầu vào chưa hợp lệ'); return; } try{ await fetchJson(API.register, { method:'POST', body: JSON.stringify({ email, password, name }) }); document.getElementById('resendHintRegister')?.classList.remove('hidden'); setTab('login'); toast('Đăng ký thành công, vui lòng kiểm tra email để xác minh tài khoản'); }catch(e){ toast(e.message); }};
-    document.getElementById('doForgot').onclick = async ()=>{ const email=document.getElementById('forgotEmail').value; if(!email){ toast('Nhập email'); return; } try{ await fetchJson('/api/auth/forgot', { method:'POST', body: JSON.stringify({ email }) }); toast('Đã gửi yêu cầu qua email'); }catch(e){ toast(e.message); }};
-    document.getElementById('togglePw').onclick = ()=>{ const el=document.getElementById('password'); el.type=el.type==='password'?'text':'password'; };
-    document.getElementById('toggleRegPw').onclick = ()=>{ const el=document.getElementById('regPassword'); el.type=el.type==='password'?'text':'password'; };
-    document.getElementById('toggleRegCf').onclick = ()=>{ const el=document.getElementById('regConfirm'); el.type=el.type==='password'?'text':'password'; };
-    async function resendVerify(email){ const em=(email||'').trim(); if(!em){ toast('Nhập email để gửi lại xác minh'); return; } try{ await fetchJson('/api/auth/resend-verification', { method:'POST', body: JSON.stringify({ email: em }) }); toast('Đã gửi lại email xác minh (nếu tài khoản chưa được xác minh)'); }catch(e){ toast(e.message); } }
 
-    document.getElementById('resendFromRegister').onclick = ()=>{ const em=document.getElementById('regEmail').value; resendVerify(em); };
-    const mode=new URLSearchParams(location.search).get('mode'); if(mode==='register') setTab('register'); else setTab('login'); injectBottomNav();
+    /* ─── Tab switching ─── */
+    function setTab(t) {
+      document.getElementById('cardLogin').classList.toggle('hidden',    t !== 'login');
+      document.getElementById('cardRegister').classList.toggle('hidden', t !== 'register');
+      document.getElementById('cardForgot').classList.toggle('hidden',   t !== 'forgot');
+    }
+
+    document.getElementById('linkToRegister').onclick = () => setTab('register');
+    document.getElementById('linkToLogin').onclick    = () => setTab('login');
+    document.getElementById('linkForgot').onclick     = () => setTab('forgot');
+    document.getElementById('linkForgotBack').onclick = () => setTab('login');
+
+    /* ─── Login ─── */
+    document.getElementById('doLogin').onclick = async () => {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!email || !password) { toast('Nhập email và mật khẩu'); return; }
+      try {
+        const res = await fetchJson(API.login, {
+          method: 'POST',
+          body: JSON.stringify({ email, password })
+        });
+        setToken(res.token);
+        setFlash('Đăng nhập thành công, chào mừng bạn đến với Movie Booking');
+        location.href = next;
+      } catch (e) { toast(e.message); }
+    };
+
+    /* ─── Register ─── */
+    document.getElementById('doRegister').onclick = async () => {
+      const email    = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm  = document.getElementById('regConfirm').value;
+      // derive a display name from the email prefix if the API requires one
+      const name     = email.split('@')[0] || 'user';
+
+      if (!email || !password)        { toast('Vui lòng điền đầy đủ thông tin');       return; }
+      if (password !== confirm)        { toast('Mật khẩu xác nhận không khớp');          return; }
+      if (password.length < 6)         { toast('Mật khẩu phải có ít nhất 6 ký tự');     return; }
+
+      try {
+        await fetchJson(API.register, {
+          method: 'POST',
+          body: JSON.stringify({ email, password, name })
+        });
+        document.getElementById('resendHintRegister')?.classList.remove('hidden');
+        setTab('login');
+        toast('Đăng ký thành công, vui lòng kiểm tra email để xác minh tài khoản');
+      } catch (e) { toast(e.message); }
+    };
+
+    /* ─── Forgot password ─── */
+    document.getElementById('doForgot').onclick = async () => {
+      const email = document.getElementById('forgotEmail').value.trim();
+      if (!email) { toast('Nhập email'); return; }
+      try {
+        await fetchJson('/api/auth/forgot', {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+        toast('Đã gửi yêu cầu qua email');
+      } catch (e) { toast(e.message); }
+    };
+
+    /* ─── Password visibility toggles ─── */
+    function togglePass(inputId) {
+      const el = document.getElementById(inputId);
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+    document.getElementById('togglePw').onclick    = () => togglePass('password');
+    document.getElementById('toggleRegPw').onclick = () => togglePass('regPassword');
+    document.getElementById('toggleRegCf').onclick = () => togglePass('regConfirm');
+
+    /* ─── Resend verification email ─── */
+    async function resendVerify(email) {
+      const em = (email || '').trim();
+      if (!em) { toast('Nhập email để gửi lại xác minh'); return; }
+      try {
+        await fetchJson('/api/auth/resend-verification', {
+          method: 'POST',
+          body: JSON.stringify({ email: em })
+        });
+        toast('Đã gửi lại email xác minh (nếu tài khoản chưa được xác minh)');
+      } catch (e) { toast(e.message); }
+    }
+    document.getElementById('resendFromRegister').onclick =
+      () => resendVerify(document.getElementById('regEmail').value);
+
+    /* ─── Initial tab from URL param ─── */
+    const mode = new URLSearchParams(location.search).get('mode');
+    setTab(mode === 'register' ? 'register' : 'login');
+
+    if (typeof injectBottomNav === 'function') injectBottomNav();
   </script>
 </body>
 </html>

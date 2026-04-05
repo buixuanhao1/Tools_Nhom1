@@ -139,11 +139,7 @@ public class ShowTimeController {
     public ResponseEntity<?> createShowTimeAdmin(@org.springframework.web.bind.annotation.RequestBody ShowTime payload) {
         log.info("POST /api/showtimes/admin payload={}", payload);
         ShowTime st = showTimeService.create(payload);
-        return ResponseEntity.ok(Map.of(
-                "id", st.getId(),
-                "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
-                "movieTitle", st.getMovieTitle() == null ? "" : st.getMovieTitle()
-        ));
+        return ResponseEntity.ok(mapToShowTimeResponse(st));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/{id}/title")
@@ -156,11 +152,7 @@ public class ShowTimeController {
                                          @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> body) {
         String title = body.get("movieTitle");
         ShowTime st = showTimeService.update(id, ShowTime.builder().movieTitle(title).build());
-        return ResponseEntity.ok(java.util.Map.of(
-                "id", st.getId(),
-                "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
-                "movieTitle", st.getMovieTitle() == null ? "" : st.getMovieTitle()
-        ));
+        return ResponseEntity.ok(mapToShowTimeResponse(st));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/{id}/disable")

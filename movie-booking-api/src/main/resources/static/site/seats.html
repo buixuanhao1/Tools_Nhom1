@@ -56,26 +56,51 @@
       background: rgba(255,255,255,0.06);
       border: 1px solid var(--border-soft);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 10px;
     }
-    body.seats-vip .container{max-width:1280px;padding:28px 22px;}
+    body.seats-vip .searchbar input{
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      width: 180px;
+    }
+    body.seats-vip .searchbar .icon{
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    body.seats-vip .searchbar .icon:hover{
+      opacity: 1;
+    }
+    body.seats-vip .searchbar button{
+      display: none;
+    }
+    body.seats-vip .container{max-width:1320px;padding:24px 20px;margin:0 auto;}
     body.seats-vip .section{margin-top:0;}
     body.seats-vip .page-head{
       display:flex;
       align-items:flex-end;
       justify-content:space-between;
       gap:18px;
-      margin: 6px 0 16px;
+      margin: 6px 0 20px;
     }
     body.seats-vip .page-title{
       margin:0;
       font-family:'Playfair Display', serif;
-      font-size:28px;
+      font-size:32px;
       letter-spacing:0.2px;
       color:#fff;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
     body.seats-vip .steps{
       display:flex;
-      gap:10px;
+      gap:12px;
       align-items:center;
       flex-wrap:wrap;
       justify-content:flex-end;
@@ -84,37 +109,64 @@
       display:flex;
       align-items:center;
       gap:10px;
-      padding:8px 12px;
+      padding:10px 16px;
       border-radius:999px;
       border:1px solid var(--border-soft);
-      background: rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.03);
       color: var(--text-muted);
-      font-size:13px;
+      font-size:14px;
       font-weight:600;
+      transition: all 0.3s var(--ease);
     }
     body.seats-vip .step .dot{
       width:8px;height:8px;border-radius:4px;
-      background: rgba(148,163,184,0.5);
-      box-shadow: 0 0 0 4px rgba(148,163,184,0.14);
+      background: rgba(148,163,184,0.3);
+      transition: all 0.3s var(--ease);
     }
     body.seats-vip .step.active{
       color:#fff;
-      border-color: rgba(249,115,22,0.55);
-      background: rgba(249,115,22,0.10);
+      border-color: rgba(249,115,22,0.5);
+      background: rgba(249,115,22,0.08);
+      box-shadow: 0 4px 15px rgba(249,115,22,0.1);
     }
     body.seats-vip .step.active .dot{
       background: var(--primary);
-      box-shadow: 0 0 0 4px rgba(249,115,22,0.16), 0 0 18px rgba(249,115,22,0.35);
+      box-shadow: 0 0 12px var(--primary);
     }
-    body.seats-vip .page-grid{grid-template-columns: 1fr 420px;gap:18px;}
+    body.seats-vip .page-grid{
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start;
+    }
     body.seats-vip .box{
-      background: rgba(15, 23, 42, 0.58);
+      background: rgba(15, 23, 42, 0.5);
       border: 1px solid var(--border-softer);
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    body.seats-vip .seats-container {
+      width: 100%;
+      overflow-x: auto;
+      padding: 20px 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    body.seats-vip .seats-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    body.seats-vip .seats-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    body.seats-vip .seats-container::-webkit-scrollbar-thumb {
+      background: rgba(249, 115, 22, 0.3);
+      border-radius: 10px;
+    }
+    body.seats-vip .seats-container::-webkit-scrollbar-thumb:hover {
+      background: var(--primary);
     }
     body.seats-vip #showtimeInfo{
       font-size: 13px;
@@ -232,32 +284,43 @@
     }
     body.seats-vip .vip-confirm .btn.primary:hover{box-shadow: 0 16px 34px rgba(249,115,22,0.26);}
     body.seats-vip .screen{
-      height:auto;
-      border:none;
-      border-top: 3px solid rgba(255,255,255,0.38);
-      color: rgba(226,232,240,0.92);
-      padding-top: 10px;
-      margin: 12px 0 14px;
-      letter-spacing: 3px;
-      font-weight: 700;
+      height: 60px;
+      border: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+      border-top: 4px solid rgba(255,255,255,0.6);
+      border-radius: 50% / 100% 100% 0 0;
+      color: rgba(226,232,240,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px auto 40px;
+      letter-spacing: 8px;
+      font-weight: 800;
       text-transform: uppercase;
       position: relative;
+      width: 80%;
+      perspective: 1000px;
+      transform: rotateX(-30deg);
+      box-shadow: 0 -20px 40px -10px rgba(255,255,255,0.1);
     }
     body.seats-vip .screen::after{
       content:"";
       position:absolute;
       left:50%;
-      top:-3px;
+      top:-4px;
       transform:translateX(-50%);
-      width: 62%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.75), transparent);
-      box-shadow: 0 0 30px rgba(249,115,22,0.35);
+      width: 70%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      box-shadow: 0 0 30px var(--primary);
     }
     body.seats-vip .seats{
-      width:100%;
-      gap: 10px;
-      padding: 12px 0 4px;
+      min-width: fit-content;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
     body.seats-vip .row{
       gap: 10px;
@@ -354,7 +417,6 @@
       <div class="searchbar">
         <span class="icon">🔍</span>
         <input id="search" placeholder="Tìm phim" />
-        <button id="btnSearch" class="primary">Tìm</button>
       </div>
       <div id="userArea"></div>
     </div>
@@ -381,7 +443,9 @@
             <div class="chip"><div class="box booked"></div><span>Đã đặt</span></div>
           </div>
           <div class="screen">MÀN HÌNH</div>
-          <div id="seats" class="seats"></div>
+          <div class="seats-container">
+            <div id="seats" class="seats"></div>
+          </div>
         </div>
         <div class="box">
           <div class="muted">Thông Tin</div>
@@ -512,23 +576,30 @@
         }catch(e){}
       }, 5000);
     }
-    async function loadShowtimes(){ if(!movieId) return; try{ const list=await fetchJson(API.showtimes(movieId)); const box=document.querySelector('.section'); const wrap=document.createElement('div'); wrap.className='box'; const title=document.createElement('div'); title.className='muted'; title.textContent='Đổi suất chiếu'; wrap.appendChild(title);
+    async function loadShowtimes(){ if(!movieId) return; try{ const list=await fetchJson(API.showtimes(movieId)); const box=document.querySelector('.section'); const wrap=document.createElement('div'); wrap.className='box'; wrap.style.marginBottom='24px'; wrap.style.padding='20px';
+      const title=document.createElement('div'); title.className='muted'; title.style.fontSize='16px'; title.style.fontWeight='700'; title.style.color='#fff'; title.style.marginBottom='16px'; title.textContent='Đổi suất chiếu'; wrap.appendChild(title);
       const groups = {}; list.forEach(st=>{ const c=st.cinema||'Khác'; (groups[c]=groups[c]||[]).push(st); });
       Object.keys(groups).sort().forEach(c=>{
-        const g=document.createElement('div'); g.style.marginTop='12px';
-        const t=document.createElement('div'); t.className='muted'; t.style.fontSize='0.9em'; t.style.marginBottom='6px'; t.textContent=c; g.appendChild(t);
-        const bar=document.createElement('div'); bar.className='flex';
+        const g=document.createElement('div'); g.style.marginTop='16px';
+        const t=document.createElement('div'); t.className='muted'; t.style.fontSize='14px'; t.style.marginBottom='10px'; t.style.color='var(--primary)'; t.textContent=c; g.appendChild(t);
+        const bar=document.createElement('div'); bar.className='flex'; bar.style.gap='12px';
         groups[c].sort((a,b)=> { const da=parseLocalDateTime(a.startTime)||new Date(a.startTime); const db=parseLocalDateTime(b.startTime)||new Date(b.startTime); return da-db; });
         groups[c].forEach(async st=>{
-          const chip=document.createElement('div'); chip.className='pill'+(String(st.id)===String(showtimeId)?' active':''); chip.textContent=formatDisplay(st.startTime);
-          chip.onclick=()=>{ location.href=`/site/seats.html?showtimeId=${st.id}&movieId=${movieId}`; };
+          const chip=document.createElement('div'); chip.className='pill'+(String(st.id)===String(showtimeId)?' active':'');
+          const dt = parseLocalDateTime(st.startTime)||new Date(st.startTime);
+          const hh=String(dt.getHours()).padStart(2,'0');
+          const mm=String(dt.getMinutes()).padStart(2,'0');
+          const dd=String(dt.getDate()).padStart(2,'0');
+          const MM=String(dt.getMonth()+1).padStart(2,'0');
+          chip.innerHTML = `<span style="font-weight:700">${hh}:${mm}</span> <span style="font-size:0.85em;opacity:0.8">${dd}/${MM}</span>`;
+          chip.onclick=()=>{ if(String(st.id)!==String(showtimeId)) location.href=`/site/seats.html?showtimeId=${st.id}&movieId=${movieId}`; };
           bar.appendChild(chip);
           if(String(st.id)===String(showtimeId)) { state.current=st; try{ const det=await fetchJson(`/api/showtimes/${st.id}`); if(det&&typeof det.disabled!=='undefined'){ state.current.disabled = det.disabled; } }catch(e){} }
         });
         g.appendChild(bar); wrap.appendChild(g);
       });
-      wrap.style.marginBottom='14px'; box.insertBefore(wrap, box.querySelector('.page-grid'));
-      const info=document.getElementById('showtimeInfo'); if(info && state.current){ const dt=parseLocalDateTime(state.current.startTime)||new Date(state.current.startTime); const dd=String(dt.getDate()).padStart(2,'0'); const MM=String(dt.getMonth()+1).padStart(2,'0'); const yyyy=dt.getFullYear(); const hh=String(dt.getHours()).padStart(2,'0'); const mm=String(dt.getMinutes()).padStart(2,'0'); info.textContent = `${hh}:${mm} ${dd}/${MM}/${yyyy} • ${state.current.cinema||''}`; }
+      box.insertBefore(wrap, box.querySelector('.page-grid'));
+      const info=document.getElementById('showtimeInfo'); if(info && state.current){ const dt=parseLocalDateTime(state.current.startTime)||new Date(state.current.startTime); const dd=String(dt.getDate()).padStart(2,'0'); const MM=String(dt.getMonth()+1).padStart(2,'0'); const yyyy=dt.getFullYear(); const hh=String(dt.getHours()).padStart(2,'0'); const mm=String(dt.getMinutes()).padStart(2,'0'); info.innerHTML = `<span style="font-size:1.2em;font-weight:700;color:#fff">${hh}:${mm} ${dd}/${MM}/${yyyy}</span> • <span style="color:var(--primary)">${state.current.cinema||''}</span>`; }
       }catch{} }
     async function loadMovie(){ if(!movieId) return; let m=null;
       try{ const internalId = Number(movieId); if(Number.isFinite(internalId)){
@@ -587,9 +658,28 @@
       seatElByCode.forEach((el, code)=>{ el.classList.toggle('selected', codes.has(String(code))); });
     }
     function updateMetrics(){ const free = state.seats.filter(s=>{ const held = s.isHeld || (s.status==='HELD' && s.heldUntil); return s.status!=='BOOKED' && !held; }).length; const chosen = state.seatCodes.length; const m=document.getElementById('metrics'); if(m) m.textContent = `Còn trống: ${free} • Đã chọn: ${chosen}`; }
-    async function quote(){ const el=document.getElementById('quote'); const seatsSel=state.seatCodes.slice(); let summary=''; if(state.movie){ const dt = state.current ? new Date(state.current.startTime) : null; const weekdays = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy']; const wd = dt ? weekdays[dt.getDay()] : ''; const timeStr = dt ? `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')} - ${wd}, ${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}` : ''; summary += `<div style=\"display:flex;gap:12px;align-items:center\">${state.movie.posterUrl?`<img src=\"${state.movie.posterUrl}\" style=\"width:80px;height:120px;border-radius:10px;object-fit:cover;border:1px solid var(--border)\"/>`:''}<div><div class=\"title\">${state.movie.title||''}</div><div class=\"muted\">2D Lồng Tiếng -</div>${state.current?`<div class=\"muted\">${state.current.cinema||''}${state.current.room?(' - '+state.current.room):''}</div><div class=\"muted\">Suất: ${timeStr}</div>`:''}</div></div><div class=\"divider dashed\"></div>`; }
-      if(seatsSel.length===0){ el.innerHTML = summary; return; }
-      try{ const data=await fetchJson(API.quote, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats: seatsSel }) }); const seatsStr = seatsSel.join(', '); const currency = (data.currency==='VND'?'đ':data.currency); el.innerHTML = summary + `<div style=\"display:flex;justify-content:space-between\"><span>${seatsSel.length}x Ghế đơn</span><span>${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span></div><div class=\"muted\" style=\"margin-top:4px\">Ghế: ${seatsStr}</div><div class=\"divider dashed\"></div><div style=\"display:flex;justify-content:space-between\"><span>Tổng cộng</span><span style=\"color:var(--orange2);font-weight:700\">${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span></div>`; }catch(e){ el.textContent=e.message; }
+    async function quote(){ const el=document.getElementById('quote'); const seatsSel=state.seatCodes.slice(); let summary=''; if(state.movie){ const dt = state.current ? new Date(state.current.startTime) : null; const weekdays = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy']; const wd = dt ? weekdays[dt.getDay()] : ''; const timeStr = dt ? `<span style="color:#fff">${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}</span> - ${wd}, ${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}` : '';
+      summary += `<div style="display:flex;gap:16px;margin-bottom:20px">
+        ${state.movie.posterUrl?`<img src="${state.movie.posterUrl}" style="width:100px;height:140px;border-radius:12px;object-fit:cover;box-shadow: 0 8px 20px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1)"/>`:''}
+        <div style="flex:1">
+          <div class="title" style="font-size:18px;margin-bottom:6px;line-height:1.3">${state.movie.title||''}</div>
+          <div class="muted" style="font-size:13px;margin-bottom:4px">2D Lồng Tiếng</div>
+          ${state.current?`<div class="muted" style="font-size:13px;margin-bottom:4px"><span style="color:var(--primary)">${state.current.cinema||''}</span>${state.current.room?(' - '+state.current.room):''}</div><div class="muted" style="font-size:13px">Suất: ${timeStr}</div>`:''}
+        </div>
+      </div><div class="divider dashed" style="margin:20px 0"></div>`; }
+      if(seatsSel.length===0){ el.innerHTML = summary + '<div class="center muted" style="padding:20px 0">Vui lòng chọn ghế để tiếp tục</div>'; return; }
+      try{ const data=await fetchJson(API.quote, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats: seatsSel }) }); const seatsStr = seatsSel.join(', '); const currency = (data.currency==='VND'?'đ':data.currency);
+        el.innerHTML = summary + `
+          <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <span style="color:var(--text-muted)">${seatsSel.length}x Ghế đơn</span>
+            <span style="font-weight:600">${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span>
+          </div>
+          <div class="muted" style="margin-bottom:20px;padding-left:12px;border-left:2px solid var(--primary)">Ghế: <span style="color:#fff;font-weight:600">${seatsStr}</span></div>
+          <div class="divider dashed" style="margin:20px 0"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:16px;font-weight:600">Tổng cộng</span>
+            <span style="color:var(--primary);font-size:24px;font-weight:800;text-shadow: 0 0 20px rgba(249,115,22,0.3)">${new Intl.NumberFormat('vi-VN').format(data.totalPrice)} ${currency}</span>
+          </div>`; }catch(e){ el.textContent=e.message; }
     }
     document.getElementById('back').onclick = () => { const mid = movieId || (state.movie && state.movie.id); if(mid) location.href = `/site/detail.html?movieId=${mid}`; else history.back(); };
     document.getElementById('next').onclick = async () => {

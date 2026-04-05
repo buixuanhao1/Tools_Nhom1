@@ -71,13 +71,12 @@ jobs:
       # Bước 5: Chạy Unit Test & Integration Test với MySQL thật
       - name: Run Tests
         working-directory: movie-booking-api
-        env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: "123456"
-          # Tắt mail auto-configuration để tránh lỗi kết nối SMTP khi chạy test
-          SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
-        run: mvn test -B
+        run: |
+          mvn test -B \
+            -Dspring.datasource.url="jdbc:mysql://localhost:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true" \
+            -Dspring.datasource.username=root \
+            -Dspring.datasource.password=123456 \
+            -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
       # Bước 6: Lưu file .jar thành artifact để dùng ở job sau
       - name: Upload JAR artifact

@@ -54,12 +54,8 @@ public class ShowTimeService {
         ShowTime existing = showTimeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Showtime not found"));
         
-        if (payload.getStartTime() != null) {
-            existing.setStartTime(payload.getStartTime());
-        }
-        
-        validatePayload(payload);
-        // Use either payload fields or existing fields if payload is partial
+        // Apply changes from payload to existing entity
+        if (payload.getStartTime() != null) existing.setStartTime(payload.getStartTime());
         if (payload.getCinema() != null) existing.setCinema(payload.getCinema());
         if (payload.getRoom() != null) existing.setRoom(payload.getRoom());
         if (payload.getPrice() != null) existing.setPrice(payload.getPrice());
@@ -72,6 +68,8 @@ public class ShowTimeService {
         if (payload.getMovieId() != null) existing.setMovieId(payload.getMovieId());
         if (payload.getMovieTmdbId() != null) existing.setMovieTmdbId(payload.getMovieTmdbId());
 
+        // Validate and enrich the MERGED state
+        validatePayload(existing);
         checkConflicts(existing, id);
         
         return showTimeRepository.save(existing);

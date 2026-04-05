@@ -72,7 +72,7 @@ public class AuthService {
             String link = verifyBaseUrl + "?token=" + java.net.URLEncoder.encode(token, java.nio.charset.StandardCharsets.UTF_8);
             mailService.sendVerificationEmail(user.getEmail(), link);
         } catch (Exception ignored) {}
-        return new AuthResponse(null, user.getName(), user.getEmail());
+        return new AuthResponse(null, user.getName(), user.getEmail(), user.getRole().name());
     }
 
     @Transactional(readOnly = true)
@@ -96,7 +96,7 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail());
-        return new AuthResponse(token, user.getName(), user.getEmail());
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name());
     }
 
     private String normalizeEmail(String email) {

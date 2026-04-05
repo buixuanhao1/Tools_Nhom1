@@ -101,10 +101,11 @@ public class ShowTimeController {
     }
 
     private java.util.Map<String, Object> mapToShowTimeResponse(ShowTime st) {
+        if (st == null) return java.util.Map.of();
         return java.util.Map.of(
                 "id", st.getId(),
                 "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
-                "startTime", st.getStartTime().atZone(ZONE).toOffsetDateTime().format(ISO_OFFSET),
+                "startTime", st.getStartTime() == null ? "" : st.getStartTime().atZone(ZONE).toOffsetDateTime().format(ISO_OFFSET),
                 "cinema", st.getCinema() == null ? "" : st.getCinema(),
                 "room", st.getRoom() == null ? "" : st.getRoom(),
                 "price", st.getPrice() == null ? 0 : st.getPrice(),

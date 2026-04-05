@@ -24,4 +24,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query(value = "SELECT DATE_FORMAT(created_at, '%Y-%m-01') AS m, COALESCE(SUM(amount),0) AS total FROM payments WHERE status='SUCCESS' AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL :months MONTH) GROUP BY DATE_FORMAT(created_at, '%Y-%m-01') ORDER BY m", nativeQuery = true)
     List<Object[]> sumRevenueByMonth(@Param("months") int months);
+
+    @Query(value = "SELECT COUNT(*) FROM payments WHERE status='SUCCESS'", nativeQuery = true)
+    Long countTotalSuccessPayments();
+
+    List<Payment> findByStatus(String status);
 }

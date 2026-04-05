@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +22,7 @@ public class AdminPaymentController {
         List<Payment> all = paymentRepository.findAll();
         List<Map<String, Object>> result = all.stream()
                 .filter(p -> status == null || p.getStatus().equalsIgnoreCase(status))
+                .sorted(Comparator.comparing(Payment::getCreatedAt).reversed())
                 .map(p -> {
                     java.util.Map<String, Object> m = new java.util.HashMap<>();
                     m.put("id", p.getId());

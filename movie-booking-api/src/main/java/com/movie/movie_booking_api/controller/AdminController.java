@@ -37,11 +37,13 @@ public class AdminController {
             m.put("amount", ((Number) row[1]).longValue());
             return m;
         }).toList();
+        Long totalMovies = movieRepository.count();
         Map<String, Object> resp = Map.of(
                 "todayRevenue", todayRevenue == null ? 0 : todayRevenue,
                 "monthRevenue", monthRevenue == null ? 0 : monthRevenue,
                 "ticketsSoldToday", ticketsSoldToday == null ? 0 : ticketsSoldToday,
                 "activeShowtimesToday", activeShowtimesToday == null ? 0 : activeShowtimesToday,
+                "totalMovies", totalMovies == null ? 0 : totalMovies,
                 "revenueByDay", revenueByDay
         );
         return ResponseEntity.ok(resp);

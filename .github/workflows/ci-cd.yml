@@ -1,0 +1,136 @@
+name: CI/CD Pipeline - Movie Booking API
+
+# =============================================
+# TRIGGER: Khi nào pipeline chạy?
+# =============================================
+on:
+  push:
+    branches:
+      - main        # Push lên main → chạy full pipeline (test + build + deploy)
+      - develop     # Push lên develop → chỉ chạy test + build
+      - feature/**  # Push lên feature/* → chỉ chạy test + build
+  pull_request:
+    branches:
+      - main        # Tạo PR vào main → phải pass test mới được merge
+
+# =============================================
+# JOBS
+# =============================================
+jobs:
+
+  # -------------------------------------------
+  # JOB 1: BUILD & TEST
+  # Chạy trên mọi branch khi push hoặc PR
+  # -------------------------------------------
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    # Khởi động MySQL service song song với job
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: 123456
+          MYSQL_DATABASE: movie_booking
+        ports:
+          - 3306:3306
+        # Chờ MySQL sẵn sàng nhận kết nối mới chạy tiếp
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -p123456"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      # Bước 1: Checkout source code từ repository
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài đặt Java 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      # Bước 3: Cache Maven dependencies (tăng tốc build lần sau)
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Bước 4: Build project (compile + đóng gói .jar)
+      - name: Build with Maven
+        working-directory: movie-booking-api
+        run: mvn package -DskipTests -B
+
+      # Bước 5: Chạy Unit Test & Integration Test với MySQL thật
+      - name: Run Tests
+        working-directory: movie-booking-api
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: "123456"
+          SPRING_MAIL_USERNAME: ""
+          SPRING_MAIL_PASSWORD: ""
+        run: mvn test -B
+
+      # Bước 6: Lưu file .jar thành artifact để dùng ở job sau
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: movie-booking-api/target/*.jar
+          retention-days: 1
+
+  # -------------------------------------------
+  # JOB 2: DOCKER BUILD & PUSH
+  # Chỉ chạy khi push lên branch "main"
+  # và JOB 1 phải pass trước
+  # -------------------------------------------
+  docker-build-push:
+    name: Docker Build & Push to Hub
+    runs-on: ubuntu-latest
+    needs: build-and-test  # Phụ thuộc vào job 1 phải thành công
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      # Bước 1: Checkout source code
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      # Bước 2: Đăng nhập vào Docker Hub bằng Secrets
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Bước 3: Thiết lập Docker Buildx (hỗ trợ multi-platform build)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Bước 4: Tạo metadata (tag tự động theo commit SHA và "latest")
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: buixuanhao/movie-booking-api
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=,format=short
+
+      # Bước 5: Build image và push lên Docker Hub
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./movie-booking-api
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha      # Dùng GitHub cache để tăng tốc build
+          cache-to: type=gha,mode=max

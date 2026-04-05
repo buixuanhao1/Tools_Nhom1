@@ -3,314 +3,445 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tài khoản</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <title>Tài khoả</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700;1,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/site/common.css" />
   <style>
     :root{
-      --header-h: 80px;
-      --acc-bg:#020617;
-      --acc-border-soft: rgba(255,255,255,0.10);
-      --acc-border-softer: rgba(255,255,255,0.06);
-      --acc-text-muted: rgba(148,163,184,0.95);
-      --acc-ease:cubic-bezier(0.215, 0.61, 0.355, 1);
-      --header-pill-h: 44px;
-      --header-pill-bg: rgba(255,255,255,0.06);
-      --header-pill-border: var(--acc-border-soft);
-      --header-pill-shadow: inset 0 0 0 1px rgba(0,0,0,0.18);
+      --header-h: 85px;
+      --acc-bg: #030712;
+      --acc-card-bg: rgba(30, 41, 59, 0.45);
+      --acc-border: rgba(255, 255, 255, 0.08);
+      --acc-border-hover: rgba(249, 115, 22, 0.3);
+      --acc-text-main: #f8fafc;
+      --acc-text-muted: #94a3b8;
+      --acc-primary: #f97316;
+      --acc-primary-glow: rgba(249, 115, 22, 0.5);
+      --acc-secondary: #3b82f6;
+      --acc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --acc-radius: 28px;
+      --acc-glass: saturate(180%) blur(25px);
     }
-    html, body{min-height:100%}
-    html{
-      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
-                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
-                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
-                  var(--acc-bg);
+
+    html, body {
+      min-height: 100%;
+      background: var(--acc-bg);
+      color: var(--acc-text-main);
+      font-family: 'Outfit', sans-serif;
+      scroll-behavior: smooth;
     }
-    body.account-vip{
-      background: radial-gradient(900px 520px at 12% 0%, rgba(249,115,22,0.20), transparent 60%),
-                  radial-gradient(900px 520px at 88% 18%, rgba(37,99,235,0.14), transparent 60%),
-                  radial-gradient(800px 520px at 50% 110%, rgba(251,146,60,0.16), transparent 60%),
-                  var(--acc-bg);
-      min-height: 100vh;
-      font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-      overflow-x:hidden;
+
+    body.account-vip {
+      background: 
+        radial-gradient(circle at 0% 0%, rgba(249, 115, 22, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 1) 0%, var(--acc-bg) 100%);
       padding-top: var(--header-h);
-      padding-bottom: 88px;
+      padding-bottom: 80px;
     }
-    body.account-vip header{
-      height: var(--header-h);
-      background: rgba(2, 6, 23, 0.78);
-      border-bottom: 1px solid var(--acc-border-softer);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+
+    /* Layout */
+    body.account-vip .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px;
     }
-    body.account-vip .brand{
-      color:#fff;
-      font-weight:800;
-      font-size:20px;
-      letter-spacing:0.2px;
-      font-family:'Playfair Display', serif;
+
+    body.account-vip .page-head {
+      margin-bottom: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--acc-border);
+      padding-bottom: 32px;
     }
-    body.account-vip .brand .logo{
-      width:34px;height:34px;border-radius:17px;
-      box-shadow: 0 0 18px rgba(249, 115, 22, 0.34);
+
+    body.account-vip .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: -1px;
+      background: linear-gradient(to bottom right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    body.account-vip .container{max-width:1280px;padding:28px 22px;}
-    body.account-vip .section{margin-top:0;}
-    body.account-vip .page-head{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:18px;
-      margin: 6px 0 18px;
-    }
-    body.account-vip .page-title{
-      margin:0;
-      font-family:'Playfair Display', serif;
-      font-size:30px;
-      letter-spacing:0.2px;
-      color:#fff;
-      line-height:1.15;
-    }
-    body.account-vip .page-sub{
-      margin-top: 8px;
+
+    body.account-vip .page-sub {
       color: var(--acc-text-muted);
-      font-size: 13px;
-      line-height: 1.5;
-      max-width: 620px;
-    }
-    body.account-vip .stats{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    body.account-vip .stat{
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(2,6,23,0.44);
-      border-radius: 16px;
-      padding: 10px 12px;
-      min-width: 140px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
-    }
-    body.account-vip .stat .k{
-      color: rgba(148,163,184,0.9);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.16px;
-    }
-    body.account-vip .stat .v{
-      margin-top: 6px;
-      color: rgba(226,232,240,0.95);
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 0.18px;
-      font-variant-numeric: tabular-nums;
-    }
-    body.account-vip .page-grid{
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap: 14px;
-      align-items:start;
-    }
-    body.account-vip .card{
-      border: 1px solid rgba(255,255,255,0.08);
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border-radius: 22px;
-      box-shadow: 0 18px 60px rgba(0,0,0,0.55);
-      overflow:hidden;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
-    body.account-vip .card-inner{padding: 16px;}
-    body.account-vip .card-head{
-      padding: 16px 16px 0;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-    }
-    body.account-vip .card-title{
-      color:#fff;
-      font-weight: 900;
-      letter-spacing:0.18px;
-      font-size: 14px;
-      text-transform: uppercase;
-      margin:0;
-    }
-    body.account-vip .card-sub{
-      color: rgba(148,163,184,0.92);
-      font-size: 12px;
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-    body.account-vip .profile-row{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    body.account-vip .avatar{
-      border-radius: 18px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: 0 18px 40px rgba(249,115,22,0.20);
-      color:#fff;
-      font-weight: 900;
-      letter-spacing: 0.2px;
-      font-size: 18px;
-      flex: 0 0 auto;
-    }
-    body.account-vip .profile-meta{min-width:0}
-    body.account-vip .profile-name{
-      color:#fff;
-      font-weight: 900;
-      letter-spacing:0.2px;
       font-size: 16px;
-      line-height:1.2;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 280px;
-    }
-    body.account-vip .profile-email{
-      margin-top: 6px;
-      color: rgba(148,163,184,0.95);
-      font-size: 13px;
-      overflow-wrap:anywhere;
-    }
-    body.account-vip .pill{
-      display:inline-flex;
-      align-items:center;
-      height: 28px;
-      padding: 0 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(2, 6, 23, 0.45);
-      color: rgba(226,232,240,0.92);
-      font-weight: 800;
-      font-size: 12px;
-      letter-spacing: 0.12px;
-      white-space:nowrap;
-    }
-    body.account-vip .pill.strong{
-      border-color: rgba(249,115,22,0.35);
-      box-shadow: 0 0 0 4px rgba(249,115,22,0.10), 0 0 22px rgba(249,115,22,0.14);
-    }
-    body.account-vip .fields{
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
       margin-top: 12px;
+      font-weight: 400;
     }
-    body.account-vip .field-label{
-      color: rgba(148,163,184,0.9);
+
+    /* Stats Dashboard */
+    body.account-vip .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 180px);
+      gap: 20px;
+    }
+
+    body.account-vip .stat {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--acc-border);
+      border-radius: 24px;
+      padding: 20px;
+      transition: all 0.4s var(--acc-ease);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    body.account-vip .stat:hover {
+      border-color: var(--acc-border-hover);
+      transform: translateY(-6px);
+      background: rgba(30, 41, 59, 0.7);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    body.account-vip .stat .k {
       font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--acc-text-muted);
+      margin-bottom: 10px;
+    }
+
+    body.account-vip .stat .v {
+      font-size: 24px;
       font-weight: 900;
-      letter-spacing: 0.16px;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
     }
-    body.account-vip .field{
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(2,6,23,0.42);
-      border-radius: 16px;
-      padding: 10px 12px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.22);
+
+    /* Cinema Membership Card Design */
+    body.account-vip .page-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 40px;
     }
-    body.account-vip .field input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      color: rgba(226,232,240,0.95);
-      font-family: inherit;
-      font-size: 14px;
-      height: 22px;
-      padding: 0;
+
+    body.account-vip .card {
+      background: var(--acc-card-bg);
+      backdrop-filter: var(--acc-glass);
+      -webkit-backdrop-filter: var(--acc-glass);
+      border: 1px solid var(--acc-border);
+      border-radius: var(--acc-radius);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
     }
-    body.account-vip .field input::placeholder{color: rgba(148,163,184,0.75)}
-    body.account-vip .btn{
-      height: 46px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.04);
-      color: rgba(226,232,240,0.92);
-      font-weight: 900;
-      letter-spacing:0.2px;
-      cursor:pointer;
-      transition: transform .18s var(--acc-ease), box-shadow .22s var(--acc-ease), filter .2s var(--acc-ease);
+
+    body.account-vip .card-head {
+      padding: 32px 32px 0;
     }
-    body.account-vip .btn:disabled{opacity:0.65;cursor:not-allowed;transform:none}
-    body.account-vip .btn.primary{
-      border-color: rgba(249,115,22,0.55);
-      background: linear-gradient(135deg, var(--orange), var(--orange2));
-      box-shadow: 0 14px 30px rgba(249,115,22,0.22);
-      color:#fff;
-    }
-    body.account-vip .btn.primary:hover{transform: translateY(-2px);box-shadow: 0 20px 40px rgba(249,115,22,0.28);filter:brightness(1.02)}
-    body.account-vip .history{
-      padding: 14px 16px 16px;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
-    body.account-vip .booking{
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(2,6,23,0.35);
-      border-radius: 18px;
-      padding: 12px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
+
+    body.account-vip .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
       gap: 12px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.20);
+      text-transform: none;
     }
-    body.account-vip .booking-main{min-width:0;display:flex;flex-direction:column;gap:8px}
-    body.account-vip .booking-title{
-      color:#fff;
+
+    body.account-vip .card-title i {
+      color: var(--acc-primary);
+      font-size: 18px;
+    }
+
+    body.account-vip .card-sub {
+      font-size: 14px;
+      color: var(--acc-text-muted);
+      margin-top: 8px;
+    }
+
+    body.account-vip .card-inner {
+      padding: 32px;
+    }
+
+    /* Profile Card Logic */
+    body.account-vip .profile-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+      position: relative;
+    }
+
+    body.account-vip .profile-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 24px;
+    }
+
+    body.account-vip .avatar-wrap {
+      position: relative;
+      padding: 8px;
+    }
+
+    body.account-vip .avatar {
+      width: auto;
+      height: auto;
+      border-radius: 40px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 2px solid var(--acc-border);
+      font-size: 48px;
       font-weight: 900;
-      letter-spacing:0.16px;
-      line-height: 1.25;
-      font-size: 15px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      max-width: 560px;
+      color: var(--acc-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      z-index: 2;
     }
-    body.account-vip .booking-meta{
-      color: rgba(148,163,184,0.95);
+
+    body.account-vip .avatar-glow {
+      position: absolute;
+      inset: 0;
+      background: var(--acc-primary);
+      filter: blur(30px);
+      opacity: 0.3;
+      border-radius: 40px;
+      z-index: 1;
+    }
+
+    body.account-vip .tier-badge {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 999px;
       font-size: 12px;
-      line-height: 1.45;
-      display:flex;
-      flex-wrap:wrap;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 16px rgba(217, 119, 6, 0.3);
+      z-index: 3;
+      white-space: nowrap;
+    }
+
+    body.account-vip .profile-name {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    body.account-vip .profile-email {
+      font-size: 15px;
+      color: var(--acc-text-muted);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    /* Booking Items as Movie Tickets */
+    body.account-vip .history {
+      padding: 32px;
+      display: grid;
+      gap: 24px;
+    }
+
+    body.account-vip .booking {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid var(--acc-border);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s var(--acc-ease);
+      position: relative;
+    }
+
+    body.account-vip .booking::before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 40px;
+      background: var(--acc-primary);
+      border-radius: 0 4px 4px 0;
+    }
+
+    body.account-vip .booking:hover {
+      background: rgba(30, 41, 59, 0.6);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateX(8px);
+    }
+
+    body.account-vip .booking-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body.account-vip .booking-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    body.account-vip .pill {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--acc-border);
+      color: var(--acc-text-muted);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
       gap: 8px;
     }
-    body.account-vip .booking-chips{display:flex;gap:6px;flex-wrap:wrap}
-    body.account-vip .chip{
-      height: 26px;
-      padding: 0 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      color: rgba(226,232,240,0.92);
-      font-weight: 800;
+
+    body.account-vip .pill i {
+      color: var(--acc-primary);
+      font-size: 14px;
+    }
+
+    body.account-vip .pill.strong {
+      color: #fff;
+      background: rgba(249, 115, 22, 0.1);
+      border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    body.account-vip .booking-chips {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+    }
+
+    body.account-vip .chip {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--acc-border);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 10px;
       font-size: 12px;
-      letter-spacing: 0.12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
-    body.account-vip .booking-actions{display:flex;align-items:center;gap:8px;flex: 0 0 auto}
-    body.account-vip .empty{
-      border: 1px dashed rgba(148,163,184,0.25);
-      background: rgba(2,6,23,0.24);
+
+    body.account-vip .booking-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Forms Refinement */
+    body.account-vip .fields {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    body.account-vip .field-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--acc-text-muted);
+      margin-bottom: 10px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    body.account-vip .field {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--acc-border);
       border-radius: 18px;
-      padding: 18px 14px;
-      color: rgba(148,163,184,0.95);
-      text-align:center;
-      line-height: 1.5;
+      padding: 14px 20px;
+      transition: all 0.3s var(--acc-ease);
     }
-    @media (max-width: 980px){
-      body.account-vip .page-head{align-items:flex-start;flex-direction:column;}
-      body.account-vip .stats{justify-content:flex-start;}
-      body.account-vip .page-grid{grid-template-columns: 1fr;}
-      body.account-vip .booking-title{max-width: 100%;}
+
+    body.account-vip .field:focus-within {
+      border-color: var(--acc-primary);
+      background: rgba(15, 23, 42, 0.8);
+      box-shadow: 0 0 0 5px rgba(249, 115, 22, 0.15);
+    }
+
+    body.account-vip .field input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      width: 100%;
+      outline: none;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Button Cinematic Style */
+    body.account-vip .btn {
+      height: 54px;
+      border-radius: 18px;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 0 32px;
+      cursor: pointer;
+      transition: all 0.4s var(--acc-ease);
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-transform: none;
+    }
+
+    body.account-vip .btn.primary {
+      background: linear-gradient(135deg, var(--acc-primary), #fb923c);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(249, 115, 22, 0.25);
+    }
+
+    body.account-vip .btn.primary:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(249, 115, 22, 0.4);
+      filter: brightness(1.15);
+    }
+
+    body.account-vip .btn-request-cancel {
+      background: rgba(239, 68, 68, 0.1) !important;
+      color: #ef4444 !important;
+      border: 1px solid rgba(239, 68, 68, 0.2) !important;
+      height: 48px;
+    }
+
+    body.account-vip .btn-request-cancel:hover {
+      background: rgba(239, 68, 68, 0.2) !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+      transform: translateY(-2px);
+    }
+
+    body.account-vip .empty {
+      padding: 80px 40px;
+      text-align: center;
+      color: var(--acc-text-muted);
+      border: 2px dashed var(--acc-border);
+      border-radius: var(--acc-radius);
+      background: rgba(255,255,255,0.02);
+      font-size: 16px;
+    }
+
+    @media (max-width: 1100px) {
+      body.account-vip .page-grid {
+        grid-template-columns: 1fr;
+      }
+      body.account-vip .page-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 32px;
+      }
+      body.account-vip .stats {
+        width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
     }
   </style>
 </head>
@@ -337,33 +468,33 @@
       </div>
       <div class="page-grid">
         <div>
-          <div class="card">
+          <div class="card profile-card">
             <div class="card-head">
               <div>
-                <div class="card-title">Hồ sơ</div>
-                <div class="card-sub">Thông tin tài khoản của bạn.</div>
+                <div class="card-title"><i class="fas fa-id-card"></i> Thẻ thành viên</div>
+                <div class="card-sub">Thông tin định danh của bạn trong hệ thống.</div>
               </div>
             </div>
             <div id="profile" class="card-inner"></div>
           </div>
-          <div class="card" style="margin-top:12px">
+          <div class="card" style="margin-top:24px">
             <div class="card-head">
               <div>
-                <div class="card-title">Bảo mật</div>
-                <div class="card-sub">Đổi mật khẩu để bảo vệ tài khoản.</div>
+                <div class="card-title"><i class="fas fa-user-shield"></i> Bảo mật</div>
+                <div class="card-sub">Quản lý mật khẩu và quyền truy cập.</div>
               </div>
             </div>
             <div class="card-inner">
               <div class="fields">
                 <div>
                   <div class="field-label">Mật khẩu hiện tại</div>
-                  <div class="field"><input id="currentPassword" type="password" placeholder="Nhập mật khẩu hiện tại" /></div>
+                  <div class="field"><input id="currentPassword" type="password" placeholder="••••••••" /></div>
                 </div>
                 <div>
                   <div class="field-label">Mật khẩu mới</div>
-                  <div class="field"><input id="newPassword" type="password" placeholder="Nhập mật khẩu mới" /></div>
+                  <div class="field"><input id="newPassword" type="password" placeholder="••••••••" /></div>
                 </div>
-                <button id="btnChange" class="btn primary" style="width:100%">Đổi mật khẩu</button>
+                <button id="btnChange" class="btn primary" style="width:100%"><i class="fas fa-key"></i> Cập nhật mật khẩu</button>
               </div>
             </div>
           </div>
@@ -372,8 +503,8 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <div class="card-title">Lịch sử đặt vé</div>
-                <div class="card-sub">Xem lại các vé bạn đã đặt.</div>
+                <div class="card-title"><i class="fas fa-ticket-alt"></i> Lịch sử xem phim</div>
+                <div class="card-sub">Danh sách các bộ phim bạn đã thưởng thức.</div>
               </div>
             </div>
             <div id="history" class="history"></div>
@@ -390,9 +521,18 @@
       const el = document.getElementById('stats');
       if(!el) return;
       el.innerHTML = `
-        <div class="stat"><div class="k">Đơn đã đặt</div><div class="v">${totalBookings}</div></div>
-        <div class="stat"><div class="k">Số vé</div><div class="v">${totalTickets}</div></div>
-        <div class="stat"><div class="k">Đã chi</div><div class="v">${formatMoneyVND(totalSpent)}</div></div>
+        <div class="stat">
+          <div class="k"><i class="fas fa-film"></i> Đã xem</div>
+          <div class="v">${totalBookings} phim</div>
+        </div>
+        <div class="stat">
+          <div class="k"><i class="fas fa-ticket-alt"></i> Tổng vé</div>
+          <div class="v">${totalTickets} vé</div>
+        </div>
+        <div class="stat">
+          <div class="k"><i class="fas fa-coins"></i> Đã chi</div>
+          <div class="v">${formatMoneyVND(totalSpent)}</div>
+        </div>
       `;
     }
     async function loadProfile(){
@@ -400,14 +540,22 @@
       try{
         const p = await fetchJson(API.profile);
         const email = String(p.email || getEmail() || '');
-        const name = String(p.fullName || p.name || email || 'Tài khoản');
+        const name = String(p.fullName || p.name || email || 'Cinephile');
         const initial = (name.trim()[0] || 'M').toUpperCase();
+        
+        // Logic giả định cấp bậc thành viên dựa trên số đơn hàng (có thể mở rộng sau)
+        const tier = 'Thành viên Bạc'; 
+        
         box.innerHTML = `
           <div class="profile-row">
-            <div class="avatar">${initial}</div>
+            <div class="avatar-wrap">
+              <div class="avatar-glow"></div>
+              <div class="avatar">${initial}</div>
+              <div class="tier-badge"><i class="fas fa-crown"></i> ${tier}</div>
+            </div>
             <div class="profile-meta">
               <div class="profile-name">${name}</div>
-              <div class="profile-email">${email || '—'}</div>
+              <div class="profile-email">${email}</div>
             </div>
           </div>
         `;
@@ -432,24 +580,24 @@
           const status = b.status || 'CONFIRMED';
           let statusHtml = '';
           if (status === 'CANCEL_REQUESTED') {
-            statusHtml = '<span class="pill" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2)">Chờ huỷ</span>';
+            statusHtml = '<span class="pill" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2)"><i class="fas fa-clock"></i> Đang chờ huỷ</span>';
           }
 
           d.innerHTML = `
             <div class="booking-main">
               <div class="booking-title">${b.movieTitle || ''}</div>
               <div class="booking-meta">
-                <span class="pill">${time}</span>
-                ${cinema ? `<span class="pill">${cinema}</span>` : ''}
-                <span class="pill">Mã: ${code}</span>
-                <span class="pill strong">${totalStr}</span>
+                <span class="pill"><i class="far fa-calendar-alt"></i> ${time}</span>
+                ${cinema ? `<span class="pill"><i class="fas fa-map-marker-alt"></i> ${cinema}</span>` : ''}
+                <span class="pill"><i class="fas fa-qrcode"></i> Mã: ${code}</span>
+                <span class="pill strong"><i class="fas fa-receipt"></i> ${totalStr}</span>
                 ${statusHtml}
               </div>
               <div class="booking-chips">${seatsHtml}</div>
             </div>
             <div class="booking-actions">
-              ${status === 'CONFIRMED' ? `<button class="btn btn-request-cancel" style="height:40px;padding:0 14px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);margin-right:8px" onclick="requestCancel(${b.id})">Yêu cầu huỷ</button>` : ''}
-              <button class="btn primary btn-view-ticket" style="height:40px;padding:0 14px" type="button">Xem vé</button>
+              ${status === 'CONFIRMED' ? `<button class="btn btn-request-cancel" onclick="requestCancel(${b.id})"><i class="fas fa-times-circle"></i> Huỷ vé</button>` : ''}
+              <button class="btn primary btn-view-ticket" type="button"><i class="fas fa-eye"></i> Chi tiết</button>
             </div>
           `;
           const btnView = d.querySelector('.btn-view-ticket');

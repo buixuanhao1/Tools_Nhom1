@@ -1,0 +1,71 @@
+version: "3.9"
+
+# =============================================
+# DOCKER COMPOSE - Movie Booking System
+# Bao gồm: Backend (Spring Boot) + Database (MySQL)
+# =============================================
+
+services:
+
+  # -------------------------------------------
+  # SERVICE 1: MySQL Database
+  # -------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: movie_booking_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456           # Mật khẩu root của MySQL
+      MYSQL_DATABASE: movie_booking          # Tên database tự động tạo khi khởi động
+    ports:
+      - "3307:3306"                          # Map port 3307 (host) -> 3306 (container)
+                                             # Dùng 3307 để tránh xung đột với MySQL local
+    volumes:
+      - mysql_data:/var/lib/mysql            # Lưu data vào volume để không mất khi restart
+    networks:
+      - movie_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------
+  # SERVICE 2: Spring Boot Backend API
+  # -------------------------------------------
+  backend:
+    build:
+      context: ./movie-booking-api           # Đường dẫn tới thư mục chứa Dockerfile
+      dockerfile: Dockerfile
+    image: movie-booking-api:latest          # Tên image sau khi build
+    container_name: movie_booking_backend
+    restart: always
+    ports:
+      - "8081:8081"                          # Map port 8081 (host) -> 8081 (container)
+    environment:
+      # Ghi đè cấu hình database để dùng service "db" thay vì localhost
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      # Mail config (thay bằng thông tin thực khi deploy)
+      SPRING_MAIL_USERNAME: ""
+      SPRING_MAIL_PASSWORD: ""
+    depends_on:
+      db:
+        condition: service_healthy           # Chờ MySQL sẵn sàng mới khởi động backend
+    networks:
+      - movie_network
+
+# -------------------------------------------
+# VOLUMES: Lưu trữ data MySQL bền vững
+# -------------------------------------------
+volumes:
+  mysql_data:
+    driver: local
+
+# -------------------------------------------
+# NETWORKS: Mạng nội bộ để các service giao tiếp
+# -------------------------------------------
+networks:
+  movie_network:
+    driver: bridge

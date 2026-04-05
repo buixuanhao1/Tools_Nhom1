@@ -522,6 +522,66 @@
       .section-title { justify-content: center; }
       .section-title::before { display: none; }
     }
+
+    /* Trailer Modal Enhanced */
+    .trailer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+    .trailer-content {
+      position: relative;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 900px; max-width: 95vw;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(249, 115, 22, 0.15);
+      overflow: hidden;
+      animation: modalEntrance 0.4s var(--ease-out);
+    }
+    .trailer-header {
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .trailer-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; color: #fff;
+      margin: 0;
+    }
+    .close-x {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      cursor: pointer; color: #94a3b8;
+      transition: all 0.2s ease;
+      font-size: 24px;
+      line-height: 1;
+      padding-bottom: 4px;
+    }
+    .close-x:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444; border-color: #ef4444;
+      transform: rotate(90deg);
+    }
+    .video-wrapper {
+      position: relative;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
+      background: #000;
+    }
+    .video-wrapper iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalEntrance { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -588,47 +648,41 @@
 
     // --- Components ---
 
-    function TrailerModal({ title, movieId, tmdbId, open, onClose }){
+    function TrailerModal({ open, onClose, videoData, movieTitle }){
       const [key, setKey] = useState(null);
       
       useEffect(()=>{
-        if(!open) return;
-        (async()=>{
-          let id=null;
-          const norm = (k) => {
-             const s=String(k||'').trim(); if(!s) return null;
-             if(/^https?:\/\//.test(s)){
-               try{
-                 const u=new URL(s);
-                 if(u.hostname.includes('youtu.be')){ return (u.pathname||'').replace(/^\//,''); }
-                 const vid=u.searchParams.get('v'); if(vid) return vid;
-               }catch{}
-               return null; 
-             }
-             return s;
-          };
-          
-          if(movieId){
-            try{ const t = await fetchJson(API.trailer(movieId)); if(t&&t.key) id=norm(t.key); }catch{}
-            if(!id) try{ const fb = await fetchJson(API.trailerFallback(movieId)); if(fb&&fb.key) id=norm(fb.key); }catch{}
-          }
-          if(!id && tmdbId){
-            try{ const v = await fetchJson(API.publicVideos(tmdbId)); if(v&&v.key) id=norm(v.key); }catch{}
-          }
-          if(id) setKey(id); else if(onClose) onClose();
-        })();
-      },[movieId, tmdbId, open]);
+        if(!open || !videoData) return;
+        const norm = (k) => {
+           const s=String(k||'').trim(); if(!s) return null;
+           if(/^https?:\/\//.test(s)){
+             try{
+               const u=new URL(s);
+               if(u.hostname.includes('youtu.be')){ return (u.pathname||'').replace(/^\//,''); }
+               const vid=u.searchParams.get('v'); if(vid) return vid;
+             }catch{}
+             return null; 
+           }
+           return s;
+        };
+        if(videoData.key) setKey(norm(videoData.key));
+      },[videoData, open]);
 
       if(!open || !key) return null;
-      return React.createElement('div', { className:'overlay', style:{display:'flex', zIndex: 9999} },
-        React.createElement('div', { className:'modal', style:{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)' } },
-          React.createElement('iframe', {
-            width: '100%', height: '350',
-            src: `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1&autoplay=1`,
-            frameBorder:'0', allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
-            allowFullScreen:true
-          }),
-          React.createElement('div', { className:'actions', style:{marginTop:15, justifyContent:'flex-end'}},
+      return React.createElement('div', { className:'trailer-overlay', onClick: onClose },
+        React.createElement('div', { className:'trailer-content', onClick: e=>e.stopPropagation() },
+          React.createElement('div', { className:'trailer-header' },
+            React.createElement('h3', { className:'trailer-title' }, `Trailer: ${movieTitle || 'Movie'}`),
+            React.createElement('div', { className:'close-x', onClick: onClose }, '×')
+          ),
+          React.createElement('div', { className:'video-wrapper' },
+            React.createElement('iframe', {
+              src: `https://www.youtube.com/embed/${key}?rel=0&modestbranding=1&autoplay=1`,
+              frameBorder:'0', allow:'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+              allowFullScreen:true
+            })
+          ),
+          React.createElement('div', { style:{padding:16, display:'flex', justifyContent:'flex-end', background:'rgba(255,255,255,0.02)'}},
             React.createElement('button', { 
               className:'btn-vip glass', 
               style:{padding:'8px 24px', minWidth:'auto', fontSize:'14px'},
@@ -639,33 +693,18 @@
       );
     }
 
-    function Cast({ tmdbId, internalId, fallbackStr }){
-      const [list,setList] = useState([]);
-      useEffect(()=>{
-        (async()=>{
-          try{
-            let arr = [];
-            if(tmdbId){ try{ const c = await fetchJson(API.publicCast(tmdbId)); if(Array.isArray(c)) arr=c; }catch{} }
-            if(!arr.length && internalId){ try{ const c = await fetchJson(API.credits(internalId)); if(Array.isArray(c)) arr=c.map(x=>({name:x.name, character:x.character, photo:x.photo})); }catch{} }
-            
-            if(!arr.length && fallbackStr){
-               arr = String(fallbackStr).split(',').map(s=>({name:s.trim(), character:''}));
-            }
-            setList(arr.slice(0, 15));
-          }catch{ setList([]); }
-        })();
-      },[tmdbId, internalId]);
-
-      if(!list.length) return null;
+    function Cast({ castList }){
+      if(!castList || !castList.length) return null;
+      const list = castList.slice(0, 15);
 
       return React.createElement('div', { style: {marginTop: '40px'} },
         React.createElement('h3', { className:'section-title' }, 'Diễn viên'),
         React.createElement('div', { className:'cast-scroll' },
           list.map((c, i) => React.createElement('div', { className:'cast-item', key:i },
-             c.photo || c.profile_path 
+             c.photo || c.profile_path || c.profilePath
                ? React.createElement('img', { 
                    className:'cast-avatar', 
-                   src: c.photo || (c.profile_path ? `https://image.tmdb.org/t/p/w200${c.profile_path}` : '') 
+                   src: c.photo || (c.profile_path ? `https://image.tmdb.org/t/p/w200${c.profile_path}` : (c.profilePath ? `https://image.tmdb.org/t/p/w200${c.profilePath}` : '')) 
                  })
                : React.createElement('div', { className:'cast-avatar', style:{display:'flex',alignItems:'center',justifyContent:'center'} }, '👤'),
              React.createElement('div', { className:'cast-name' }, c.name),
@@ -675,30 +714,23 @@
       );
     }
 
-    function ShowtimesBox({ internalId, tmdbId }){
-      const [groups, setGroups] = useState(null);
-      useEffect(()=>{
-        (async()=>{
-           try{
-            const id = tmdbId || internalId;
-            if(!id){ setGroups({}); return; }
-            let all = [];
-            try{ const list = await fetchJson(API.showtimes(id)); if(Array.isArray(list)) all = list; }catch{}
-            const uniqMap = {}; all.forEach(st=>{ if(st&&st.id) uniqMap[st.id]=st; });
-            const visible = Object.values(uniqMap).filter(st => {
-               try{ return (new Date(st.startTime)) >= new Date(); }catch{ return true; }
-            });
-            const gs = {};
-            visible.forEach(st => { const k = st.cinema || 'Rạp Khác'; (gs[k]=gs[k]||[]).push(st); });
-            Object.keys(gs).forEach(k => gs[k].sort((a,b)=>new Date(a.startTime) - new Date(b.startTime)));
-            setGroups(gs);
-           }catch{ setGroups({}); }
-        })();
-      }, [internalId, tmdbId]);
-
-      if(!groups || Object.keys(groups).length === 0) {
+    function ShowtimesBox({ showtimesList, movieId }){
+      if(!showtimesList || !showtimesList.length) {
         return React.createElement('div', { className:'booking-panel', style:{textAlign:'center', color:'#94a3b8'} }, 
           'Chưa có lịch chiếu cho phim này.'
+        );
+      }
+
+      const visible = showtimesList.filter(st => {
+         try{ return (new Date(st.startTime)) >= new Date(); }catch{ return true; }
+      });
+      const groups = {};
+      visible.forEach(st => { const k = st.cinema || 'Rạp Khác'; (groups[k]=groups[k]||[]).push(st); });
+      Object.keys(groups).forEach(k => groups[k].sort((a,b)=>new Date(a.startTime) - new Date(b.startTime)));
+
+      if(Object.keys(groups).length === 0) {
+        return React.createElement('div', { className:'booking-panel', style:{textAlign:'center', color:'#94a3b8'} }, 
+          'Chưa có lịch chiếu sắp tới cho phim này.'
         );
       }
 
@@ -717,8 +749,7 @@
                     className:'time-pill', 
                     key:st.id,
                     onClick: () => {
-                       const mid = internalId || tmdbId;
-                       const dest = `/site/seats.html?showtimeId=${st.id}&movieId=${mid}`;
+                       const dest = `/site/seats.html?showtimeId=${st.id}&movieId=${movieId}`;
                        if(requireAuth(dest)) location.href=dest;
                     }
                   }, formatTime(st.startTime))
@@ -732,62 +763,31 @@
 
     function DetailPage(){
       const { movieId } = qs();
-      const [m, setM] = useState(null);
+      const [data, setData] = useState(null);
       const [loading, setLoading] = useState(true);
       const [trailerOpen, setTrailerOpen] = useState(false);
 
       useEffect(()=>{
+        if(!movieId) return;
         (async()=>{
           try{
-            let movieData = null;
-            let internalId = null;
-            const [internalData, resolveData, publicData] = await Promise.all([
-              fetchJson(API.movieDetail(movieId)).catch(()=>null),
-              fetchJson(API.resolve(movieId)).catch(()=>null),
-              fetchJson(API.publicDetail(movieId)).catch(()=>null)
-            ]);
-
-            if(internalData && internalData.id){
-              movieData = internalData;
-              internalId = internalData.id;
-            } else if(resolveData && resolveData.internalId){
-              internalId = resolveData.internalId;
-              movieData = await fetchJson(API.movieDetail(internalId)).catch(()=>null);
-            }
-
-            if(!movieData){
-              if(publicData){
-                movieData = {
-                  tmdbId: publicData.id,
-                  title: publicData.title,
-                  description: publicData.overview,
-                  director: publicData.director,
-                  posterUrl: publicData.poster_path ? `https://image.tmdb.org/t/p/w500${publicData.poster_path}` : '',
-                  backdropUrl: publicData.backdrop_path ? `https://image.tmdb.org/t/p/original${publicData.backdrop_path}` : '',
-                  releaseDate: publicData.release_date,
-                  voteAverage: publicData.vote_average,
-                  runtime: publicData.runtime,
-                  genres: publicData.genres ? publicData.genres.map(g=>g.name) : [],
-                  countries: publicData.countries
-                };
-              }
-            }
-
-            setM(movieData);
+            const res = await fetchJson(API.fullDetail(movieId));
+            setData(res);
           } catch(e) { console.error(e); } finally { setLoading(false); }
         })();
       }, [movieId]);
 
       if(loading) return React.createElement('div', { style:{padding:100, textAlign:'center', color:'#fff'} }, 'Đang tải...');
-      if(!m) return React.createElement('div', { style:{padding:100, textAlign:'center', color:'#fff'} }, 'Không tìm thấy phim');
+      if(!data || !data.detail) return React.createElement('div', { style:{padding:100, textAlign:'center', color:'#fff'} }, 'Không tìm thấy phim');
 
-      const backdrop = m.backdropUrl || m.posterUrl || '';
-      const poster = m.posterUrl || '';
+      const m = data.detail;
+      const backdrop = m.backdrop_path ? `https://image.tmdb.org/t/p/original${m.backdrop_path}` : (m.backdropUrl || m.posterUrl || '');
+      const poster = m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : (m.posterUrl || '');
       const title = m.title || m.titleVi || 'Chưa có tên';
-      const releaseYear = (m.releaseDate || '2025').substring(0,4);
-      const rating = m.voteAverage || 8.5;
+      const releaseYear = (m.release_date || m.releaseDate || '2025').substring(0,4);
+      const rating = m.vote_average || m.voteAverage || 8.5;
       const runtime = m.runtime || m.durationMinutes || 0;
-      const genres = Array.isArray(m.genres) ? m.genres : (m.genre ? String(m.genre).split(',') : []);
+      const genres = Array.isArray(m.genres) ? m.genres.map(g => typeof g === 'string' ? g : g.name) : (m.genre ? String(m.genre).split(',') : []);
 
       return React.createElement('div', { className: 'detail-page' },
         // Hero Section
@@ -818,13 +818,14 @@
                 React.createElement('button', { 
                    className: 'btn-vip primary',
                    onClick: () => {
-                      document.querySelector('.booking-panel').scrollIntoView({behavior: 'smooth'});
+                      const panel = document.querySelector('.booking-panel');
+                      if(panel) panel.scrollIntoView({behavior: 'smooth'});
                    }
                 }, React.createElement('span', null, '🎟'), 'Đặt Vé Ngay'),
-                React.createElement('button', { 
+                data.videos && data.videos.key ? React.createElement('button', { 
                    className: 'btn-vip glass',
                    onClick: () => setTrailerOpen(true)
-                }, React.createElement('span', null, '▶'), 'Xem Trailer')
+                }, React.createElement('span', null, '▶'), 'Xem Trailer') : null
               )
             )
           )
@@ -835,12 +836,12 @@
           // Left Col
           React.createElement('div', { className: 'main-col' },
             React.createElement('h3', { className: 'section-title' }, 'Nội dung phim'),
-            React.createElement('p', { className: 'synopsis' }, m.description || m.overviewVi || 'Đang cập nhật nội dung...'),
+            React.createElement('p', { className: 'synopsis' }, m.overview || m.description || 'Đang cập nhật nội dung...'),
             
-            React.createElement(Cast, { tmdbId: m.tmdbId, internalId: m.id, fallbackStr: m.cast }),
+            React.createElement(Cast, { castList: data.cast }),
             
             React.createElement('div', { style:{marginTop: 60} }),
-            React.createElement(ShowtimesBox, { internalId: m.id, tmdbId: m.tmdbId })
+            React.createElement(ShowtimesBox, { showtimesList: data.showtimes, movieId: movieId })
           ),
           
           // Right Col (Info)
@@ -863,8 +864,8 @@
         React.createElement(TrailerModal, { 
            open: trailerOpen, 
            onClose: ()=>setTrailerOpen(false),
-           movieId: m.id,
-           tmdbId: m.tmdbId
+           videoData: data.videos,
+           movieTitle: title
         })
       );
     }

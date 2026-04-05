@@ -20,6 +20,9 @@ public interface ShowTimeRepository extends JpaRepository<ShowTime, Long> {
     @Query(value = "SELECT * FROM show_times WHERE cinema = :cinema AND room = :room AND ((start_time <= :end AND DATE_ADD(start_time, INTERVAL duration_minutes MINUTE) >= :start))", nativeQuery = true)
     List<ShowTime> findConflicts(@Param("cinema") String cinema, @Param("room") String room, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 
+    @Query(value = "SELECT * FROM show_times WHERE cinema = :cinema AND room = :room AND ((start_time <= :end AND DATE_ADD(start_time, INTERVAL duration_minutes MINUTE) >= :start)) AND (:excludeId IS NULL OR id <> :excludeId)", nativeQuery = true)
+    List<ShowTime> findConflictsExcluding(@Param("cinema") String cinema, @Param("room") String room, @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end, @Param("excludeId") Long excludeId);
+
     @Query(value = "SELECT DISTINCT movie_id FROM show_times WHERE (disabled IS NULL OR disabled = FALSE) AND start_time BETWEEN :start AND :end", nativeQuery = true)
     java.util.List<Long> findDistinctMovieIdsBetween(@Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
 

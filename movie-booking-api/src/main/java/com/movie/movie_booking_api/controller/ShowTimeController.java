@@ -22,7 +22,7 @@ import java.util.Map;
 public class ShowTimeController {
 
     private final ShowTimeRepository showTimeRepository;
-    private final com.movie.movie_booking_api.repository.MovieRepository movieRepository;
+    private final com.movie.movie_booking_api.service.ShowTimeService showTimeService;
     private static final java.time.ZoneId ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
     private static final java.time.format.DateTimeFormatter ISO_OFFSET = java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -83,54 +83,35 @@ public class ShowTimeController {
             @org.springframework.cache.annotation.CacheEvict(value = "public_upcoming", allEntries = true)
     })
     public ResponseEntity<?> createShowTime(@org.springframework.web.bind.annotation.RequestBody ShowTime payload) {
-        if (payload.getDurationMinutes() == null || payload.getDurationMinutes() <= 0) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "durationMinutes required");
-        }
-        if (payload.getMovieId() == null && payload.getMovieTmdbId() == null) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "movieId or movieTmdbId required");
-        }
-        if (payload.getMovieId() == null && payload.getMovieTmdbId() != null) {
-            movieRepository.findByTmdbId(payload.getMovieTmdbId()).ifPresent(m -> {
-                payload.setMovieId(m.getId());
-                if (payload.getMovieTitle() == null || payload.getMovieTitle().isBlank()) {
-                    payload.setMovieTitle(m.getTitle());
-                }
-            });
-        } else if (payload.getMovieId() != null && (payload.getMovieTitle() == null || payload.getMovieTitle().isBlank())) {
-            movieRepository.findById(payload.getMovieId()).ifPresent(m -> payload.setMovieTitle(m.getTitle()));
-        }
-        java.time.LocalDateTime start = payload.getStartTime();
-        java.time.LocalDateTime end = start.plusMinutes(payload.getDurationMinutes());
-        java.util.List<ShowTime> conflicts = showTimeRepository.findConflicts(payload.getCinema(), payload.getRoom(), start, end);
-        if (!conflicts.isEmpty()) {
-            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Showtime conflict");
-        }
-        ShowTime st = ShowTime.builder()
-                .movieId(payload.getMovieId())
-                .movieTmdbId(payload.getMovieTmdbId())
-                .startTime(payload.getStartTime())
-                .cinema(payload.getCinema())
-                .room(payload.getRoom())
-                .price(payload.getPrice())
-                .movieTitle(payload.getMovieTitle())
-                .format(payload.getFormat())
-                .durationMinutes(payload.getDurationMinutes())
-                .status(payload.getStatus() == null ? "ACTIVE" : payload.getStatus())
-                .disabled(Boolean.FALSE)
-                .build();
-        st = showTimeRepository.save(st);
-        java.util.Map<String, Object> resp = java.util.Map.of(
+        log.info("POST /api/showtimes payload={}", payload);
+        ShowTime st = showTimeService.create(payload);
+        return ResponseEntity.status(201).body(mapToShowTimeResponse(st));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/{id}")
+    @org.springframework.cache.annotation.Caching(evict = {
+            @org.springframework.cache.annotation.CacheEvict(value = "showtimes", allEntries = true),
+            @org.springframework.cache.annotation.CacheEvict(value = "public_now_playing", allEntries = true),
+            @org.springframework.cache.annotation.CacheEvict(value = "public_upcoming", allEntries = true)
+    })
+    public ResponseEntity<?> updateShowTime(@PathVariable("id") Long id, @org.springframework.web.bind.annotation.RequestBody ShowTime payload) {
+        log.info("PUT /api/showtimes/{} payload={}", id, payload);
+        ShowTime st = showTimeService.update(id, payload);
+        return ResponseEntity.ok(mapToShowTimeResponse(st));
+    }
+
+    private java.util.Map<String, Object> mapToShowTimeResponse(ShowTime st) {
+        return java.util.Map.of(
                 "id", st.getId(),
-                "movieId", st.getMovieId(),
-                "startTime", st.getStartTime().atOffset(java.time.ZoneOffset.UTC),
-                "cinema", st.getCinema(),
-                "room", st.getRoom(),
-                "price", st.getPrice(),
-                "movieTitle", st.getMovieTitle(),
-                "durationMinutes", st.getDurationMinutes(),
-                "disabled", st.getDisabled()
+                "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
+                "startTime", st.getStartTime().atZone(ZONE).toOffsetDateTime().format(ISO_OFFSET),
+                "cinema", st.getCinema() == null ? "" : st.getCinema(),
+                "room", st.getRoom() == null ? "" : st.getRoom(),
+                "price", st.getPrice() == null ? 0 : st.getPrice(),
+                "movieTitle", st.getMovieTitle() == null ? "" : st.getMovieTitle(),
+                "durationMinutes", st.getDurationMinutes() == null ? 0 : st.getDurationMinutes(),
+                "disabled", Boolean.TRUE.equals(st.getDisabled())
         );
-        return ResponseEntity.status(201).body(resp);
     }
 
     @GetMapping("/{id}")
@@ -153,9 +134,15 @@ public class ShowTimeController {
         return ResponseEntity.ok(resp);
     }
 
-    @PostMapping("/api/admin/showtimes")
+    @PostMapping("/admin")
     public ResponseEntity<?> createShowTimeAdmin(@org.springframework.web.bind.annotation.RequestBody ShowTime payload) {
-        return createShowTime(payload);
+        log.info("POST /api/showtimes/admin payload={}", payload);
+        ShowTime st = showTimeService.create(payload);
+        return ResponseEntity.ok(Map.of(
+                "id", st.getId(),
+                "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
+                "movieTitle", st.getMovieTitle() == null ? "" : st.getMovieTitle()
+        ));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/{id}/title")
@@ -167,16 +154,12 @@ public class ShowTimeController {
     public ResponseEntity<?> updateTitle(@PathVariable("id") Long id,
                                          @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, String> body) {
         String title = body.get("movieTitle");
-        ShowTime st = showTimeRepository.findById(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
-        st.setMovieTitle(title);
-        st = showTimeRepository.save(st);
-        java.util.Map<String, Object> resp = java.util.Map.of(
+        ShowTime st = showTimeService.update(id, ShowTime.builder().movieTitle(title).build());
+        return ResponseEntity.ok(java.util.Map.of(
                 "id", st.getId(),
-                "movieId", st.getMovieId(),
-                "movieTitle", st.getMovieTitle()
-        );
-        return ResponseEntity.ok(resp);
+                "movieId", st.getMovieId() == null ? 0L : st.getMovieId(),
+                "movieTitle", st.getMovieTitle() == null ? "" : st.getMovieTitle()
+        ));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/{id}/disable")
@@ -187,10 +170,7 @@ public class ShowTimeController {
     })
     public ResponseEntity<?> disable(@PathVariable("id") Long id, @org.springframework.web.bind.annotation.RequestBody java.util.Map<String, Boolean> body) {
         Boolean disabled = body.getOrDefault("disabled", Boolean.TRUE);
-        ShowTime st = showTimeRepository.findById(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
-        st.setDisabled(disabled);
-        st = showTimeRepository.save(st);
-        return ResponseEntity.ok(java.util.Map.of("id", st.getId(), "disabled", st.getDisabled()));
+        ShowTime st = showTimeService.update(id, ShowTime.builder().disabled(disabled).build());
+        return ResponseEntity.ok(java.util.Map.of("id", st.getId(), "disabled", Boolean.TRUE.equals(st.getDisabled())));
     }
 }

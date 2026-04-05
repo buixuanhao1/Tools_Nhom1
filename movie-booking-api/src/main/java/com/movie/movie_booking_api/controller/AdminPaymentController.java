@@ -17,6 +17,23 @@ public class AdminPaymentController {
 
     private final PaymentRepository paymentRepository;
 
+    @GetMapping("/summary")
+    public ResponseEntity<?> summary() {
+        List<Payment> all = paymentRepository.findAll();
+        java.util.Map<String, Long> countByStatus = new java.util.HashMap<>();
+        java.util.Map<String, Long> amountByStatus = new java.util.HashMap<>();
+        for (Payment p : all) {
+            String s = p.getStatus() == null ? "UNKNOWN" : p.getStatus().toUpperCase();
+            countByStatus.merge(s, 1L, Long::sum);
+            amountByStatus.merge(s, p.getAmount() == null ? 0L : p.getAmount(), Long::sum);
+        }
+        return ResponseEntity.ok(Map.of(
+                "total", (long) all.size(),
+                "countByStatus", countByStatus,
+                "amountByStatus", amountByStatus
+        ));
+    }
+
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(value = "status", required = false) String status) {
         List<Payment> all = paymentRepository.findAll();

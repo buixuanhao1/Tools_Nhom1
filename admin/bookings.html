@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quản lý vé & đặt vé | Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            margin-left: 240px;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            body { margin-left: 0; }
+        }
+
+        .main-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .toolbar {
+            padding: 20px;
+            display: flex;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), #dc2626);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .stats-bar {
+            padding: 12px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            font-weight: 500;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-item i {
+            color: var(--primary);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        th, td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-info {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .toast {
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s ease;
+        }
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .empty-state {
+            padding: 48px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="header">
+        <div>
+            <h2>Quản lý đặt vé</h2>
+            <p>Theo dõi và quản lý lịch sử đặt vé của người dùng</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input id="email" type="text" placeholder="Tìm kiếm theo email người dùng..." autocomplete="off">
+            </div>
+            <select id="statusFilter" style="padding: 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); outline: none;">
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="CONFIRMED">Đã xác nhận</option>
+                <option value="CANCEL_REQUESTED">Yêu cầu huỷ</option>
+            </select>
+            <button class="btn btn-primary" id="searchBtn">
+                <i class="fas fa-filter"></i> Lọc dữ liệu
+            </button>
+        </div>
+        
+        <div class="stats-bar" id="statsBar" style="display: none;">
+            <div class="stat-item">
+                <i class="fas fa-ticket-alt"></i>
+                <span id="totalTickets">0 vé</span>
+            </div>
+            <div style="width: 1px; height: 16px; background: var(--border);"></div>
+            <div class="stat-item">
+                <i class="fas fa-coins"></i>
+                <span id="totalRevenue">0 VND</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email khách hàng</th>
+                        <th>Phim</th>
+                        <th>Ghế đã đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Suất chiếu</th>
+                        <th>Vị trí rạp phim</th>
+                        <th>Nhận yêu cầu huỷ</th>
+                    </tr>
+                </thead>
+                <tbody id="listBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="/admin/sidebar.js"></script>
+<script>
+    const api = window.location.origin + '/api/admin/bookings';
+    let token = localStorage.getItem('admin_token') || '';
+    const hdrs = () => token ? { Authorization: 'Bearer ' + token, 'Content-Type':'application/json' } : { 'Content-Type':'application/json' };
+
+    // Toast function
+    function showToast(msg, type='success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="color: var(--${type})"></i>
+            <span style="flex:1">${msg}</span>
+            <i class="fas fa-times" style="cursor:pointer; opacity: 0.5" onclick="this.parentElement.remove()"></i>
+        `;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 3000);
+        }, 3000);
+    }
+
+    async function search(){
+        const emailVal = (document.getElementById('email')?.value || '').trim();
+        const statusVal = document.getElementById('statusFilter').value;
+        const params = new URLSearchParams();
+        if (emailVal) params.set('email', emailVal);
+        
+        const url = params.toString() ? (api + '?' + params.toString()) : api;
+        let arr = [];
+        
+        try {
+            const r = await fetch(url, { headers: hdrs() });
+            if(r.ok){
+                arr = await r.json();
+                if (statusVal !== 'ALL') {
+                    arr = arr.filter(b => b.status === statusVal);
+                }
+            } else {
+                arr = [];
+            }
+        } catch(e) {
+            arr = [];
+            console.error(e);
+        }
+
+        const tb = document.getElementById('listBody');
+        tb.innerHTML = '';
+
+        if (!Array.isArray(arr) || arr.length === 0) {
+            renderLocalStorageBackup(emailVal, statusVal);
+            return;
+        }
+
+        renderList(arr);
+    }
+
+    async function cancelBooking(id) {
+        if (!confirm('Bạn có chắc chắn muốn huỷ vé này không? (Hành động này sẽ giải phóng ghế và xoá bản ghi đặt vé)')) return;
+        
+        try {
+            const r = await fetch(`${api}/${id}`, {
+                method: 'DELETE',
+                headers: hdrs()
+            });
+            
+            if (r.ok) {
+                showToast('Huỷ vé thành công');
+                search();
+            } else {
+                const err = await r.text();
+                showToast(err || 'Huỷ vé thất bại', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi huỷ vé', 'error');
+        }
+    }
+
+    async function rejectCancel(id) {
+        if (!confirm('Bạn có chắc chắn muốn từ chối yêu cầu huỷ vé này?')) return;
+        try {
+            const r = await fetch(`${api}/${id}/reject-cancel`, {
+                method: 'POST',
+                headers: hdrs()
+            });
+            if (r.ok) {
+                showToast('Đã từ chối yêu cầu huỷ');
+                search();
+            } else {
+                showToast('Từ chối thất bại', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi từ chối yêu cầu', 'error');
+        }
+    }
+
+    function deleteLocalBooking(email, id) {
+        if (!confirm('Bạn có chắc chắn muốn xoá vé cục bộ này không?')) return;
+        
+        const key = `booking_history:${email}`;
+        try {
+            let list = JSON.parse(localStorage.getItem(key) || '[]');
+            list = list.filter(b => b.id !== id);
+            
+            if (list.length === 0) {
+                localStorage.removeItem(key);
+            } else {
+                localStorage.setItem(key, JSON.stringify(list));
+            }
+            
+            showToast('Đã xoá vé khỏi bộ nhớ tạm');
+            search();
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi xoá vé cục bộ', 'error');
+        }
+    }
+
+    function renderList(arr) {
+        const tb = document.getElementById('listBody');
+        const statsBar = document.getElementById('statsBar');
+        
+        if (!arr.length) {
+            tb.innerHTML = `
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <i class="fas fa-ticket-alt"></i>
+                            <p>Không tìm thấy dữ liệu đặt vé nào</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            statsBar.style.display = 'none';
+            return;
+        }
+
+        let sum = 0;
+        let count = 0;
+
+        arr.forEach(b => {
+            const tr = document.createElement('tr');
+            const startStr = b.startTime ? new Date(b.startTime).toLocaleString('vi-VN') : '';
+            const price = b.totalPrice || 0;
+            const status = b.status || 'CONFIRMED';
+            
+            let statusHtml = '';
+            if (status === 'CANCEL_REQUESTED') {
+                statusHtml = '<span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)">YÊU CẦU HUỶ</span>';
+                tr.style.background = 'rgba(245,158,11,0.05)';
+            }
+
+            tr.innerHTML = `
+                <td><span class="badge badge-info">#${b.id}</span></td>
+                <td>${b.email || '<span style="color:var(--text-muted)">N/A</span>'}</td>
+                <td style="font-weight: 500">${b.movieTitle || ''}</td>
+                <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
+                <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
+                <td>${startStr}</td>
+                <td>${b.cinema || ''} ${b.room || ''}</td>
+                <td>
+                    ${statusHtml}
+                    <button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
+                        <i class="fas fa-trash"></i> ${status === 'CANCEL_REQUESTED' ? 'Duyệt huỷ' : 'Huỷ vé'}
+                    </button>
+                    ${status === 'CANCEL_REQUESTED' ? `
+                    <button class="btn btn-warning btn-sm" onclick="rejectCancel(${b.id})">
+                        <i class="fas fa-times"></i> Từ chối
+                    </button>` : ''}
+                </td>
+            `;
+            tb.appendChild(tr);
+            sum += price;
+            count++;
+        });
+
+        // Update stats
+        document.getElementById('totalTickets').textContent = `${count} vé`;
+        document.getElementById('totalRevenue').textContent = `${sum.toLocaleString('vi-VN')} đ`;
+        statsBar.style.display = 'flex';
+    }
+
+    function renderLocalStorageBackup(query) {
+        const tb = document.getElementById('listBody');
+        const q = (query || '').toLowerCase();
+        
+        try {
+            const keys = Object.keys(localStorage).filter(k => {
+                if(!k.startsWith('booking_history:')) return false;
+                const em = k.substring('booking_history:'.length).toLowerCase();
+                return !q || em.includes(q);
+            });
+
+            if (keys.length === 0) {
+                tb.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-ticket-alt"></i>
+                                <p>Không tìm thấy dữ liệu (kể cả trong bộ nhớ tạm)</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('statsBar').style.display = 'none';
+                return;
+            }
+
+            let sum = 0;
+            let count = 0;
+
+            keys.forEach(k => {
+                try {
+                    const email = k.substring('booking_history:'.length);
+                    const list = JSON.parse(localStorage.getItem(k) || '[]');
+                    
+                    list.forEach(b => {
+                        const tr = document.createElement('tr');
+                        const startStr = b.startTime ? new Date(b.startTime).toLocaleString('vi-VN') : '';
+                        const price = b.totalPrice || 0;
+
+                        tr.innerHTML = `
+                            <td><span class="badge badge-info">Local #${b.id || '?'}</span></td>
+                            <td>${email}</td>
+                            <td style="font-weight: 500">${b.movieTitle || ''}</td>
+                            <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
+                            <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
+                            <td>${startStr}</td>
+                            <td>${b.cinema || ''} ${b.room || ''}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteLocalBooking('${email}', ${b.id})">
+                                    <i class="fas fa-trash"></i> Xoá Local
+                                </button>
+                            </td>
+                        `;
+                        tb.appendChild(tr);
+                        sum += price;
+                        count++;
+                    });
+                } catch(e) {}
+            });
+
+            document.getElementById('totalTickets').textContent = `${count} vé (Local)`;
+            document.getElementById('totalRevenue').textContent = `${sum.toLocaleString('vi-VN')} đ`;
+            document.getElementById('statsBar').style.display = 'flex';
+
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    if (!token) { 
+        location.href = '/admin/login.html?next=' + encodeURIComponent('/admin/bookings.html'); 
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', search);
+    const emailInput = document.getElementById('email');
+    if (emailInput) {
+        emailInput.addEventListener('keydown', (e) => { 
+            if(e.key === 'Enter') search(); 
+        });
+    }
+
+    // Initial load
+    (function(){ 
+        const el = document.getElementById('email'); 
+        if(el) el.value = ''; 
+        search(); 
+    })();
+</script>
+</body>
+</html>

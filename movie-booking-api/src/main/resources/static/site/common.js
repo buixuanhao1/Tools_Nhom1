@@ -34,6 +34,7 @@ API.imageBaseUrl = `/api/movies/config/imageBaseUrl`;
   API.resolve = (tmdbId) => `/api/movies/public/resolve?tmdbId=${tmdbId}`;
   API.publicShowtimes = (internalId) => `/api/movies/public/showtimes?movieId=${internalId}`;
   API.publicVideos = (tmdbId) => `/api/movies/public/videos?movieId=${tmdbId}`;
+  API.fullDetail = (movieId) => `/api/movies/public/full-detail?movieId=${movieId}`;
 
 function parseJwt(t){ try{ const p=t.split('.')[1]; const s=atob(p.replace(/-/g,'+').replace(/_/g,'/')); return JSON.parse(s); }catch(e){ return {}; } }
 function getToken(){ return localStorage.getItem('mb_token'); }

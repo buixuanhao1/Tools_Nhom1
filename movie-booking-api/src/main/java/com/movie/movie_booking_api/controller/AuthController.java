@@ -82,6 +82,11 @@ public class AuthController {
         return ResponseEntity.status(202).body(java.util.Map.of("message", "Verification email sent if account exists and not verified"));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(java.util.Map.of("message", "Đăng xuất thành công"));
+    }
+
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(Authentication authentication,
                                             @Valid @RequestBody ChangePasswordRequest request) {

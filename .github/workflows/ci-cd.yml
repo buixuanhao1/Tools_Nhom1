@@ -79,6 +79,7 @@ jobs:
             -Dspring.datasource.url="jdbc:mysql://localhost:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true" \
             -Dspring.datasource.username=root \
             -Dspring.datasource.password=123456 \
+            -Dspring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver \
             -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
 
       # Bước 6: Xuất báo cáo test (luôn chạy dù test pass hay fail)

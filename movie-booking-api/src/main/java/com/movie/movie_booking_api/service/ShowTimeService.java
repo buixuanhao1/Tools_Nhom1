@@ -24,8 +24,8 @@ public class ShowTimeService {
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ShowTime create(ShowTime payload) {
-        if (payload.getStartTime() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startTime required");
+        if (payload.getStartTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startTime must be in the future");
         }
         validatePayload(payload);
         checkConflicts(payload, null);

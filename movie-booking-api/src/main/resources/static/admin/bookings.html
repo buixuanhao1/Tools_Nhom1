@@ -132,6 +132,19 @@
             transform: translateY(-1px);
         }
 
+        .btn-danger {
+            background: linear-gradient(to right, var(--danger), #dc2626);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
         .stats-bar {
             padding: 12px 20px;
             background: rgba(99, 102, 241, 0.1);
@@ -252,6 +265,11 @@
                 <i class="fas fa-search"></i>
                 <input id="email" type="text" placeholder="Tìm kiếm theo email người dùng..." autocomplete="off">
             </div>
+            <select id="statusFilter" style="padding: 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); outline: none;">
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="CONFIRMED">Đã xác nhận</option>
+                <option value="CANCEL_REQUESTED">Yêu cầu huỷ</option>
+            </select>
             <button class="btn btn-primary" id="searchBtn">
                 <i class="fas fa-filter"></i> Lọc dữ liệu
             </button>
@@ -279,6 +297,8 @@
                         <th>Ghế đã đặt</th>
                         <th>Tổng tiền</th>
                         <th>Suất chiếu</th>
+                        <th>Vị trí rạp phim</th>
+                        <th>Nhận yêu cầu huỷ</th>
                     </tr>
                 </thead>
                 <tbody id="listBody">
@@ -312,12 +332,13 @@
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
-            setTimeout(() => toast.remove(), 300);
+            setTimeout(() => toast.remove(), 3000);
         }, 3000);
     }
 
     async function search(){
         const emailVal = (document.getElementById('email')?.value || '').trim();
+        const statusVal = document.getElementById('statusFilter').value;
         const params = new URLSearchParams();
         if (emailVal) params.set('email', emailVal);
         
@@ -328,6 +349,9 @@
             const r = await fetch(url, { headers: hdrs() });
             if(r.ok){
                 arr = await r.json();
+                if (statusVal !== 'ALL') {
+                    arr = arr.filter(b => b.status === statusVal);
+                }
             } else {
                 arr = [];
             }
@@ -339,14 +363,75 @@
         const tb = document.getElementById('listBody');
         tb.innerHTML = '';
 
-        // Fallback to localStorage if API returns empty/error and we are looking for local data?
-        // Original logic had a complex localStorage backup. Let's preserve it but clean it up.
         if (!Array.isArray(arr) || arr.length === 0) {
-            renderLocalStorageBackup(emailVal);
+            renderLocalStorageBackup(emailVal, statusVal);
             return;
         }
 
         renderList(arr);
+    }
+
+    async function cancelBooking(id) {
+        if (!confirm('Bạn có chắc chắn muốn huỷ vé này không? (Hành động này sẽ giải phóng ghế và xoá bản ghi đặt vé)')) return;
+        
+        try {
+            const r = await fetch(`${api}/${id}`, {
+                method: 'DELETE',
+                headers: hdrs()
+            });
+            
+            if (r.ok) {
+                showToast('Huỷ vé thành công');
+                search();
+            } else {
+                const err = await r.text();
+                showToast(err || 'Huỷ vé thất bại', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi huỷ vé', 'error');
+        }
+    }
+
+    async function rejectCancel(id) {
+        if (!confirm('Bạn có chắc chắn muốn từ chối yêu cầu huỷ vé này?')) return;
+        try {
+            const r = await fetch(`${api}/${id}/reject-cancel`, {
+                method: 'POST',
+                headers: hdrs()
+            });
+            if (r.ok) {
+                showToast('Đã từ chối yêu cầu huỷ');
+                search();
+            } else {
+                showToast('Từ chối thất bại', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi từ chối yêu cầu', 'error');
+        }
+    }
+
+    function deleteLocalBooking(email, id) {
+        if (!confirm('Bạn có chắc chắn muốn xoá vé cục bộ này không?')) return;
+        
+        const key = `booking_history:${email}`;
+        try {
+            let list = JSON.parse(localStorage.getItem(key) || '[]');
+            list = list.filter(b => b.id !== id);
+            
+            if (list.length === 0) {
+                localStorage.removeItem(key);
+            } else {
+                localStorage.setItem(key, JSON.stringify(list));
+            }
+            
+            showToast('Đã xoá vé khỏi bộ nhớ tạm');
+            search();
+        } catch (e) {
+            console.error(e);
+            showToast('Lỗi khi xoá vé cục bộ', 'error');
+        }
     }
 
     function renderList(arr) {
@@ -356,7 +441,7 @@
         if (!arr.length) {
             tb.innerHTML = `
                 <tr>
-                    <td colspan="6">
+                    <td colspan="8">
                         <div class="empty-state">
                             <i class="fas fa-ticket-alt"></i>
                             <p>Không tìm thấy dữ liệu đặt vé nào</p>
@@ -375,7 +460,14 @@
             const tr = document.createElement('tr');
             const startStr = b.startTime ? new Date(b.startTime).toLocaleString('vi-VN') : '';
             const price = b.totalPrice || 0;
+            const status = b.status || 'CONFIRMED';
             
+            let statusHtml = '';
+            if (status === 'CANCEL_REQUESTED') {
+                statusHtml = '<span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)">YÊU CẦU HUỶ</span>';
+                tr.style.background = 'rgba(245,158,11,0.05)';
+            }
+
             tr.innerHTML = `
                 <td><span class="badge badge-info">#${b.id}</span></td>
                 <td>${b.email || '<span style="color:var(--text-muted)">N/A</span>'}</td>
@@ -383,6 +475,17 @@
                 <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
                 <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
                 <td>${startStr}</td>
+                <td>${b.cinema || ''} ${b.room || ''}</td>
+                <td>
+                    ${statusHtml}
+                    <button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">
+                        <i class="fas fa-trash"></i> ${status === 'CANCEL_REQUESTED' ? 'Duyệt huỷ' : 'Huỷ vé'}
+                    </button>
+                    ${status === 'CANCEL_REQUESTED' ? `
+                    <button class="btn btn-warning btn-sm" onclick="rejectCancel(${b.id})">
+                        <i class="fas fa-times"></i> Từ chối
+                    </button>` : ''}
+                </td>
             `;
             tb.appendChild(tr);
             sum += price;
@@ -409,7 +512,7 @@
             if (keys.length === 0) {
                 tb.innerHTML = `
                     <tr>
-                        <td colspan="6">
+                        <td colspan="8">
                             <div class="empty-state">
                                 <i class="fas fa-ticket-alt"></i>
                                 <p>Không tìm thấy dữ liệu (kể cả trong bộ nhớ tạm)</p>
@@ -441,6 +544,12 @@
                             <td>${(b.seats || []).map(s => `<span style="background:var(--bg-input); padding:2px 6px; border-radius:4px; font-size:12px; margin-right:4px">${s}</span>`).join('')}</td>
                             <td style="color: var(--success); font-weight: 600">${price.toLocaleString('vi-VN')} đ</td>
                             <td>${startStr}</td>
+                            <td>${b.cinema || ''} ${b.room || ''}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteLocalBooking('${email}', ${b.id})">
+                                    <i class="fas fa-trash"></i> Xoá Local
+                                </button>
+                            </td>
                         `;
                         tb.appendChild(tr);
                         sum += price;

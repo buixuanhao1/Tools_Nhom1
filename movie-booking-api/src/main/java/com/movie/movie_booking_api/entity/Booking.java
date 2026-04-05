@@ -37,4 +37,7 @@ public class Booking {
 
     @Column(name = "code", unique = true)
     private String code;
+
+    @Column(name = "status")
+    private String status; // CONFIRMED, CANCEL_REQUESTED, CANCELLED
 }

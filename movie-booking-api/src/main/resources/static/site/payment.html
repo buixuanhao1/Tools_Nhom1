@@ -573,7 +573,7 @@
 
       const prevText = payBtn ? payBtn.textContent : '';
       if(payBtn){ payBtn.disabled = true; payBtn.textContent = 'Đang xử lý...'; }
-      fetchJson(API.booking, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats, holdId }) }).then(data=>{ const email=getEmail(); if(email){ const key=`booking_history:${email}`; const arr=JSON.parse(localStorage.getItem(key)||'[]'); arr.push({ id:data.id, movieTitle:data.movieTitle, startTime:data.startTime, seats:data.seats, totalPrice:data.totalPrice, currency:data.currency, code:data.code||'' }); localStorage.setItem(key, JSON.stringify(arr)); }
+      fetchJson(API.booking, { method:'POST', body: JSON.stringify({ showtimeId: Number(showtimeId), seats, holdId }) }).then(data=>{ const email=getEmail(); if(email){ const key=`booking_history:${email}`; const arr=JSON.parse(localStorage.getItem(key)||'[]'); arr.push({ id:data.id, movieTitle:data.movieTitle, startTime:data.startTime, cinema:data.cinema, room:data.room, seats:data.seats, totalPrice:data.totalPrice, currency:data.currency, code:data.code||'' }); localStorage.setItem(key, JSON.stringify(arr)); }
       const msg=`Thanh toán thành công. Mã đơn: ${data.id}`; try{ toast(msg); setFlash(msg); }catch{}
       __paid = true;
       try{ sessionStorage.removeItem('selection'); }catch{}

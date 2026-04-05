@@ -25,6 +25,13 @@ public class AdminUserController {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable("id") Long id) {
+        User u = userRepository.findById(id).orElseThrow(
+                () -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(u);
+    }
+
     @PutMapping("/{id}/role")
     public ResponseEntity<?> setRole(@PathVariable("id") Long id, @RequestBody Map<String, String> body) {
         User u = userRepository.findById(id).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));

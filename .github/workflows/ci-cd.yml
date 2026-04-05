@@ -75,8 +75,8 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/movie_booking?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: "123456"
-          SPRING_MAIL_USERNAME: ""
-          SPRING_MAIL_PASSWORD: ""
+          # Tắt mail auto-configuration để tránh lỗi kết nối SMTP khi chạy test
+          SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
         run: mvn test -B
 
       # Bước 6: Lưu file .jar thành artifact để dùng ở job sau

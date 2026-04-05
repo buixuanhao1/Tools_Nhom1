@@ -429,6 +429,12 @@
           const time = formatDisplay(b.startTime);
           const totalStr = formatMoneyVND(b.totalPrice || 0);
           const code = b.code ? String(b.code) : `#${b.id || ''}`;
+          const status = b.status || 'CONFIRMED';
+          let statusHtml = '';
+          if (status === 'CANCEL_REQUESTED') {
+            statusHtml = '<span class="pill" style="background:rgba(245,158,11,0.1);color:#f59e0b;border-color:rgba(245,158,11,0.2)">Chờ huỷ</span>';
+          }
+
           d.innerHTML = `
             <div class="booking-main">
               <div class="booking-title">${b.movieTitle || ''}</div>
@@ -437,16 +443,18 @@
                 ${cinema ? `<span class="pill">${cinema}</span>` : ''}
                 <span class="pill">Mã: ${code}</span>
                 <span class="pill strong">${totalStr}</span>
+                ${statusHtml}
               </div>
               <div class="booking-chips">${seatsHtml}</div>
             </div>
             <div class="booking-actions">
-              <button class="btn primary" style="height:40px;padding:0 14px" type="button">Xem vé</button>
+              ${status === 'CONFIRMED' ? `<button class="btn btn-request-cancel" style="height:40px;padding:0 14px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);margin-right:8px" onclick="requestCancel(${b.id})">Yêu cầu huỷ</button>` : ''}
+              <button class="btn primary btn-view-ticket" style="height:40px;padding:0 14px" type="button">Xem vé</button>
             </div>
           `;
-          const btn = d.querySelector('button');
-          if(btn){
-            btn.onclick = ()=>{ location.href = '/site/confirm.html?id=' + encodeURIComponent(b.id); };
+          const btnView = d.querySelector('.btn-view-ticket');
+          if(btnView){
+            btnView.onclick = ()=>{ location.href = '/site/confirm.html?id=' + encodeURIComponent(b.id); };
           }
           root.appendChild(d);
         };
@@ -470,6 +478,16 @@
       }catch(e){
         document.getElementById('history').innerHTML = `<div class="empty">${e.message}</div>`;
         setStats({ totalBookings: 0, totalTickets: 0, totalSpent: 0 });
+      }
+    }
+    async function requestCancel(id) {
+      if (!confirm('Bạn có chắc chắn muốn gửi yêu cầu huỷ vé này không?')) return;
+      try {
+        await fetchJson(`/api/bookings/${id}/request-cancel`, { method: 'POST' });
+        toast('Đã gửi yêu cầu huỷ vé');
+        loadHistory();
+      } catch (e) {
+        toast(e.message || 'Lỗi khi gửi yêu cầu');
       }
     }
     async function changePassword(){

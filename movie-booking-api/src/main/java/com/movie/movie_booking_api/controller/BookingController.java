@@ -216,6 +216,7 @@ public class BookingController {
             m.put("seats", new java.util.ArrayList<>(b.getSeats()));
             m.put("totalPrice", b.getTotalPrice());
             m.put("createdAt", b.getCreatedAt());
+            m.put("status", b.getStatus());
             if (st != null) {
                 m.put("movieId", st.getMovieId());
                 m.put("tmdbId", st.getMovieTmdbId());
@@ -238,5 +239,15 @@ public class BookingController {
         result.sort(java.util.Comparator.comparing((Map<String,Object> x) -> (java.time.LocalDateTime) x.get("createdAt")).reversed());
         log.info("Bookings list for email={}, userId={}, count={}", email, uid, result.size());
         return ResponseEntity.ok().header("Cache-Control","no-store").body(result);
+    }
+
+    @PostMapping("/{id}/request-cancel")
+    public ResponseEntity<?> requestCancel(@PathVariable("id") Long id, Authentication authentication) {
+        String email = authentication == null ? null : authentication.getName();
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.status(401).body("UNAUTHORIZED");
+        }
+        bookingService.requestCancel(email, id);
+        return ResponseEntity.ok(Map.of("message", "Request sent"));
     }
 }

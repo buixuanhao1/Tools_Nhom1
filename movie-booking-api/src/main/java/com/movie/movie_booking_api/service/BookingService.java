@@ -114,6 +114,7 @@ public class BookingService {
                 .totalPrice(totalPrice)
                 .createdAt(LocalDateTime.now())
                 .code(java.util.UUID.randomUUID().toString().substring(0,8).toUpperCase())
+                .status("CONFIRMED")
                 .build();
 
         booking = bookingRepository.save(booking);
@@ -208,5 +209,21 @@ public class BookingService {
         seats.forEach(s -> s.setStatus(SeatStatus.AVAILABLE));
         seatRepository.saveAll(seats);
         bookingRepository.deleteById(booking.getId());
+    }
+
+    @Transactional
+    public void requestCancel(String email, Long bookingId) {
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Phiên đăng nhập hết hạn"));
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found"));
+        if (!booking.getUserId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
+        }
+        if ("CANCEL_REQUESTED".equals(booking.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Yêu cầu đã được gửi trước đó");
+        }
+        booking.setStatus("CANCEL_REQUESTED");
+        bookingRepository.save(booking);
     }
 }

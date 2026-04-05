@@ -3,11 +3,17 @@ package com.movie.movie_booking_api.controller;
 import com.movie.movie_booking_api.entity.Booking;
 import com.movie.movie_booking_api.entity.ShowTime;
 import com.movie.movie_booking_api.entity.User;
+import com.movie.movie_booking_api.entity.Seat;
+import com.movie.movie_booking_api.entity.SeatStatus;
 import com.movie.movie_booking_api.repository.BookingRepository;
 import com.movie.movie_booking_api.repository.ShowTimeRepository;
 import com.movie.movie_booking_api.repository.UserRepository;
+import com.movie.movie_booking_api.repository.SeatRepository;
+import com.movie.movie_booking_api.repository.PaymentRepository;
+import com.movie.movie_booking_api.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +27,9 @@ public class AdminBookingController {
     private final BookingRepository bookingRepository;
     private final ShowTimeRepository showTimeRepository;
     private final UserRepository userRepository;
-    private final com.movie.movie_booking_api.service.BookingService bookingService;
+    private final SeatRepository seatRepository;
+    private final PaymentRepository paymentRepository;
+    private final BookingService bookingService;
 
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(value = "email", required = false) String email) {
@@ -50,6 +58,7 @@ public class AdminBookingController {
                 m.put("seats", new java.util.ArrayList<>(b.getSeats()==null? java.util.List.of() : b.getSeats()));
                 m.put("totalPrice", b.getTotalPrice());
                 m.put("createdAt", b.getCreatedAt()==null? null : fmt.format(b.getCreatedAt()));
+                m.put("status", b.getStatus() == null ? "CONFIRMED" : b.getStatus());
                 if (st != null) {
                     m.put("movieTitle", st.getMovieTitle());
                     m.put("cinema", st.getCinema());
@@ -100,8 +109,37 @@ public class AdminBookingController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> cancel(@PathVariable("id") Long id) {
-        bookingRepository.deleteById(id);
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking != null) {
+            // 1. Release seats
+            List<Seat> seats = seatRepository.findByShowtimeIdAndCodeIn(booking.getShowtimeId(), booking.getSeats());
+            if (seats != null) {
+                seats.forEach(s -> s.setStatus(SeatStatus.AVAILABLE));
+                seatRepository.saveAll(seats);
+            }
+            
+            // 2. Delete associated payment (optional but good for consistency)
+            paymentRepository.findAll().stream()
+                .filter(p -> id.equals(p.getBookingId()))
+                .findFirst()
+                .ifPresent(paymentRepository::delete);
+
+            // 3. Delete booking
+            bookingRepository.delete(booking);
+        }
         return ResponseEntity.ok(Map.of("deleted", id));
+    }
+
+    @PostMapping("/{id}/reject-cancel")
+    @Transactional
+    public ResponseEntity<?> rejectCancel(@PathVariable("id") Long id) {
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking != null && "CANCEL_REQUESTED".equals(booking.getStatus())) {
+            booking.setStatus("CONFIRMED");
+            bookingRepository.save(booking);
+        }
+        return ResponseEntity.ok(Map.of("message", "Rejected"));
     }
 }

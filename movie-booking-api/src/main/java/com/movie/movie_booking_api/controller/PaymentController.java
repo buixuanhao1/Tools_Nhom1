@@ -34,6 +34,8 @@ public class PaymentController {
             m.put("showtimeId", p.getShowtimeId());
             m.put("amount", p.getAmount());
             m.put("currency", p.getCurrency());
+            m.put("method", p.getMethod());
+            m.put("status", p.getStatus());
             m.put("createdAt", p.getCreatedAt().atOffset(java.time.ZoneOffset.UTC));
             m.put("movieTitle", p.getMovieTitle());
             return m;
